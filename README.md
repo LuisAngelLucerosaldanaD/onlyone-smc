@@ -1,32 +1,39 @@
-# BLion Transaction
+# OnlyOne Smart Contract
 
 ## Descripción
-BLion transaction es un servicio perteneciente a un conjunto de servicios core de la arquitectura de BLion que tiene 
-como fin controlar y gestionar las transacciones que se generan en la blockchain, además de todos los metodos que se 
-requieren para las transacciones.
+OnlyOne Smart Contract es el contrato desarrollado en go para la interacción de los usuarios de la wallet de este mismo con BLion y
+todos los beneficios que este último puede ofrecer como la seguridad de los datos. Las transacciones que se emiten por este Smart Contract
+son conocidos como `credenciales` y el usuario final puede tener acceso a esta credencial solo en modo lectura.
+
+Para entender un poco más sobre OnlyOne le recomendamos ver el siguiente video explicativo [OnlyOne](https://www.youtube.com/watch?v=qosQwcuYLwM)
+
+
+## Modelos de identidad
+
+![Modelos de Identidad](https://www.bjungle.net/assets/img/banners/banner-modelos-identidad.jpeg)
 
 ## Alcance
 
-El presente servicio está diseñado para ser utilizado por los servicios internos de BLion definidos en la arquitectura.
-Además de que dichos servicios deben de estar correctamente autenticados para poder usar el servicio.
-
-Este servicio no tiene alcance externo por sí mismo y no está diseñado para ser consumido de manera directa por aplicaciones de terceros.
+El presente servicio está diseñado y construido para ser utilizado en la red de BLion mediante su BLion Virtual Smart en relación con el 
+aplicativo mobile, no tiene alcance para todo público y está restringido a entidades certificadoras y emisoras que son las únicas que pueden
+emitir credenciales.
 
 ## Casos de uso
 
-* Se requiere para la creación de un bloque inicial conocido como Genesis con la transacción inicial
-* Se requiere la creación de bloques temporales
-* Se requiere que dependiendo del minado los bloques temporales pasen a formar parte de la cadena de bloques
-* Se requiere poder obtener un listado de los bloques de la cadena de bloques para poder verlos
-* Se requiere poder obtener un bloque de la cadena de bloques por medio de su hash o identificador
-* Se requiere poder minar los bloques temporales
-* Se requiere que la información del bloque esté encriptada de extremo a extremo con algoritmo AES-256
+* Se requiere para la creación de credenciales mediante la información que el ente emisor y/o certificador provea al servicio
+* Se requiere poder obtener las credenciales por categoria
+* Se requiere poder obtener todas las credenciales de un usuario
+* Se requiere poder crear categorias con las que se podrá organizar las credenciales
+* Se requiere poder crear un usuario
+* Se requiere poder iniciar sesión con un usuario ya existente
+* Se requiere poder obtener los datos de un usuario (Nombres, apellidos, número de identification, foto, etc.)
+* Se requiere poder guardas la información de customisación de una credencial con respecto a lo que un ente emisor/certificador envie o requiera
 
 ## Casos de uso no soportados
 
-* Se requiere poder obtener los datos de un bloque
-* Se requiere poder obtener bloques especificos de la cadena de bloques
-* Se requiere poder actualizar los datos de un bloque de la cadena de bloques
+* Se requiere poder cambiar o modificar los datos de una credencial en caso de error a la hora de crearlo
+* Se requiere poder cambiar o actualizar la foto de perfil del usuario
+* Se requiere poder eliminar una credencial
 
 ## Arquitectura
 
@@ -43,47 +50,17 @@ El presente diagrama muestra el modelo de datos que se utiliza para el servicio.
 
 Este servicio presenta las siguientes limitaciones con respecto a sus funciones y/o caracteristicas:
 
-* No se puede ejecutar en el sistema operativo MacOS
+* Solo se Puede ejecutar en la BLion Virtual Smart
 
 ## Costos
 
-La creación de las transacciones tiene un costo que depende de la información que se escribe en ella misma, tener en cuenta que se cobrara un costo adicional al monto transferido
-que son la comisión por escribir en la blockchain.
-Dichos costos o aproximados se puden obtener de la siguiente en el simulador de la plagina de [BLion](https://www.bjungle.net).
+La creación de una credencial por medio del Smart Contract de OnlyOne está regulado bajo los costos de BLion además de algunos costos adicionales como un backup de la información
+o el envío de adjuntos de gran tamaño. Todos los costos y aproximaciones de este mismo se realizarán con el área correspondiente a ventas.  
+Dichos costos o aproximados se pueden obtener de la siguiente en el simulador de la página de [BLion](https://www.bjungle.net).
 
 ## Instalación y Ejecución
-Este servicio cuenta con un archivo ejecutable para los diferentes sistemas operativos,
-que se encuentran junto a este archivo.
+Este servicio está construido para correr en la BLion Virtual Smart de BLion Blockchain por ende tiene que pasar por regulaciones y aprobaciones para poderse instalar y ejecutar 
+en la red de BLion. Para Mayor información sobre los `Smart Contract` en BLion consulte la siguiente página [BLion](https://www.bjungle.net).
 
-#### Ejecutables
-    - `blockchain-transaction.exe - windows`
-    - `blockchain-transaction - linux`
 
-##### Maneras y entornos para ejecutar el servicio:
-Si esta en desarrollo, se puede ejecutar el siguiente comando:
-````bash
-go run main.go
-````
-
-De estar en un entorno productivo debe ejecutar el archivo del servicio dependiendo del sistema operativo en donde
-se encuentre instalado.
-
-##### Windows
-En el caso de windows dar click derecho sobre el archivo ejecutable y seleccionar "Run as administrator"
-##### Linux
-En el caso de linux ingresar al directorio del ejecutable por medio de la terminal y ejecutar los siguientes comandos:
-
-````bash
-chmod 777 transaction
-````
-
-````bash
-./blockchain-transaction &&
-````
-Tener en cuenta que para que el servicio se pueda ejecutar correctamente usted tiene que estar en modo superusuario (ROOT).
-
-Para generar los archivos .proto ejecutar el siguiente comando:
-````bash
-protoc -I api/grpc/proto --go_out=plugins=grpc:internal/grpc api/grpc/proto/*.proto
-````
 

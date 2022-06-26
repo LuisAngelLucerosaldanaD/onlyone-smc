@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
+	"onlyone_smc/api/handlers/categories"
 	"onlyone_smc/api/handlers/credentials"
 	"onlyone_smc/api/handlers/login"
 	users "onlyone_smc/api/handlers/user"
@@ -56,4 +57,5 @@ func loadRoutes(app *fiber.App, db *sqlx.DB, TxID string) {
 	users.RouterCreateUser(app, db, TxID)
 	login.RouterLogin(app, db, TxID)
 	credentials.RouterCredentials(app, db, TxID)
+	categories.RouterCategories(app, db, TxID)
 }
