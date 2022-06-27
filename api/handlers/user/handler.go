@@ -331,12 +331,17 @@ func (h *handlerUser) getUserById(c *fiber.Ctx) error {
 // @Router /api/v1/user/validate-identity [post]
 func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 	res := responseValidateUser{Error: true}
-	u := helpers.GetUserContext(c)
-	srvAuth := auth.NewServerAuth(h.DB, nil, h.TxID)
-	e := env.NewConfiguration()
-
 	req := requestValidateIdentity{}
-	err := c.BodyParser(&req)
+	e := env.NewConfiguration()
+	u, err := helpers.GetUserContextV2(c)
+	if err != nil {
+		logger.Error.Printf("couldn't get user token: %v", err)
+		res.Code, res.Type, res.Msg = msg.GetByCode(1, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+	srvAuth := auth.NewServerAuth(h.DB, nil, h.TxID)
+
+	err = c.BodyParser(&req)
 	if err != nil {
 		logger.Error.Printf("couldn't bind model create wallets: %v", err)
 		res.Code, res.Type, res.Msg = msg.GetByCode(1, h.DB, h.TxID)
@@ -707,7 +712,12 @@ func (h *handlerUser) getUserByIdentityNumber(c *fiber.Ctx) error {
 // @Authorization Bearer token
 func (h *handlerUser) getUserPictureProfile(c *fiber.Ctx) error {
 	res := responseUpdateUser{Error: true, Data: ""}
-	u := helpers.GetUserContext(c)
+	u, err := helpers.GetUserContextV2(c)
+	if err != nil {
+		logger.Error.Printf("couldn't get token user: %s", err)
+		res.Code, res.Type, res.Msg = msg.GetByCode(1, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
 
 	e := env.NewConfiguration()
 

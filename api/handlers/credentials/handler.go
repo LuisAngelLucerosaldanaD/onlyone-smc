@@ -59,8 +59,13 @@ func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 	res := responseCreateCredential{Error: true}
 	m := requestCreateTransaction{}
 	e := env.NewConfiguration()
-	u := helpers.GetUserContext(c)
-	err := c.BodyParser(&m)
+	u, err := helpers.GetUserContextV2(c)
+	if err != nil {
+		logger.Error.Printf("couldn't get user of token: %v", err)
+		res.Code, res.Type, res.Msg = msg.GetByCode(1, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+	err = c.BodyParser(&m)
 	if err != nil {
 		logger.Error.Printf("couldn't bind model create wallets: %v", err)
 		res.Code, res.Type, res.Msg = msg.GetByCode(1, h.DB, h.TxID)
