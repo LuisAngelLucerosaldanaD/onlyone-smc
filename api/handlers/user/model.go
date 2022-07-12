@@ -95,3 +95,11 @@ type requestUpdatePassword struct {
 	NewPassword     string `json:"new_password"`
 	ConfirmPassword string `json:"confirm_password"`
 }
+
+type responseGetWallets struct {
+	Error bool             `json:"error"`
+	Data  []*models.Wallet `json:"data"`
+	Code  int              `json:"code"`
+	Type  int              `json:"type"`
+	Msg   string           `json:"msg"`
+}

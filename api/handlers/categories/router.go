@@ -11,5 +11,6 @@ func RouterCategories(app *fiber.App, db *sqlx.DB, txID string) {
 	api := app.Group("/api")
 	v1 := api.Group("/v1")
 	user := v1.Group("/categories")
-	user.Post("/all", middleware.JWTProtected(), h.GetAllCategories)
+	user.Get("/all", h.GetAllCategories)
+	user.Post("/create-style", middleware.JWTProtected(), h.CreateStyleOfCredential)
 }

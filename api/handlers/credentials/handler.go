@@ -311,6 +311,7 @@ func (h *handlerCredentials) getAllCredentials(c *fiber.Ctx) error {
 	var credentials []*credential
 	for _, trx := range resTrx.Data {
 		credentials = append(credentials, &credential{
+			Id:     trx.Id,
 			From:   trx.From,
 			To:     trx.To,
 			Amount: trx.Amount,
@@ -357,6 +358,67 @@ func (h *handlerCredentials) getJWTTransaction(c *fiber.Ctx) error {
 	}
 
 	res.Data = token
+	res.Code, res.Type, res.Msg = msg.GetByCode(29, h.DB, h.TxID)
+	res.Error = false
+	return c.Status(http.StatusOK).JSON(res)
+}
+
+// getAllTransactionFiles godoc
+// @Summary OnlyOne Smart Contract
+// @Description Get transaction files
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} ResGetFiles
+// @Router /api/v1/credentials/files {trx} [get]
+// @Authorization Bearer token
+func (h *handlerCredentials) getAllTransactionFiles(c *fiber.Ctx) error {
+	res := ResGetFiles{Error: true}
+	e := env.NewConfiguration()
+	trxID := c.Params("trx")
+	connTrx, err := grpc.Dial(e.TransactionsService.Port, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		logger.Error.Printf("error conectando con el servicio trx de blockchain: %s", err)
+		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+	defer connTrx.Close()
+
+	clientTrx := transactions_proto.NewTransactionsServicesClient(connTrx)
+
+	bearer := c.Get("Authorization")
+	tkn := bearer[7:]
+
+	ctx := grpcMetadata.AppendToOutgoingContext(context.Background(), "authorization", tkn)
+
+	resFiles, err := clientTrx.GetFilesTransaction(ctx, &transactions_proto.GetFilesByTransactionRequest{TransactionId: trxID})
+	if err != nil {
+		logger.Error.Printf("couldn't get files: %v", err)
+		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	if resFiles == nil {
+		logger.Error.Printf("couldn't get files")
+		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	if resFiles.Error {
+		logger.Error.Printf(resFiles.Msg)
+		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	var files []*File
+	for _, file := range resFiles.Data {
+		files = append(files, &File{
+			FileID:     int(file.FileId),
+			Name:       file.NameDocument,
+			FileEncode: file.Encoding,
+		})
+	}
+
+	res.Data = files
 	res.Code, res.Type, res.Msg = msg.GetByCode(29, h.DB, h.TxID)
 	res.Error = false
 	return c.Status(http.StatusOK).JSON(res)

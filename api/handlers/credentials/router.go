@@ -14,4 +14,5 @@ func RouterCredentials(app *fiber.App, db *sqlx.DB, txID string) {
 	user.Post("/create", middleware.JWTProtected(), h.createCredential)
 	user.Post("/jwt", middleware.JWTProtected(), h.getJWTTransaction)
 	user.Get("/all/:block_id/:limit/:offset", middleware.JWTProtected(), h.getAllCredentials)
+	user.Get("/files/:trx", middleware.JWTProtected(), h.getAllTransactionFiles)
 }

@@ -845,3 +845,75 @@ func (h *handlerUser) changePassword(c *fiber.Ctx) error {
 	res.Error = false
 	return c.Status(http.StatusOK).JSON(res)
 }
+
+// getWalletByUserId godoc
+// @Summary OnlyOne Smart Contract
+// @Description Get Wallet by user id
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} responseGetWallets
+// @Router /api/v1/wallet/user [get]
+func (h *handlerUser) getWalletByUserId(c *fiber.Ctx) error {
+	e := env.NewConfiguration()
+	res := responseGetWallets{Error: true}
+	u, err := helpers.GetUserContextV2(c)
+	if err != nil {
+		logger.Error.Printf("couldn't get token user, error: %v", err)
+		res.Code, res.Type, res.Msg = msg.GetByCode(1, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	connAuth, err := grpc.Dial(e.AuthService.Port, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		logger.Error.Printf("error conectando con el servicio auth de blockchain: %s", err)
+		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+	defer connAuth.Close()
+
+	bearer := c.Get("Authorization")
+	tkn := bearer[7:]
+	ctx := grpcMetadata.AppendToOutgoingContext(context.Background(), "authorization", tkn)
+
+	clientWallet := wallet_proto.NewWalletServicesWalletClient(connAuth)
+
+	wt, err := clientWallet.GetWalletByUserId(ctx, &wallet_proto.RequestGetWalletByUserId{UserId: u.ID})
+	if err != nil {
+		logger.Error.Printf("couldn't get wallets by id: %v", err)
+		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	if wt == nil {
+		logger.Error.Printf("couldn't get wallets by id: %v", err)
+		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	if wt.Error {
+		logger.Error.Printf(wt.Msg)
+		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	var wallets []*models.Wallet
+
+	for _, wallet := range wt.Data {
+		wallets = append(wallets, &models.Wallet{
+			ID:               wallet.Id,
+			Mnemonic:         wallet.Mnemonic,
+			RsaPublic:        wallet.RsaPublic,
+			RsaPrivate:       wallet.RsaPrivate,
+			RsaPublicDevice:  wallet.RsaPublicDevice,
+			RsaPrivateDevice: wallet.RsaPrivateDevice,
+			IpDevice:         wallet.IpDevice,
+			StatusId:         int(wallet.StatusId),
+			IdentityNumber:   wallet.IdentityNumber,
+		})
+	}
+
+	res.Data = wallets
+	res.Code, res.Type, res.Msg = msg.GetByCode(29, h.DB, h.TxID)
+	res.Error = false
+	return c.Status(http.StatusOK).JSON(res)
+}

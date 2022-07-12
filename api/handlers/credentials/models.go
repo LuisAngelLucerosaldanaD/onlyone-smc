@@ -34,6 +34,14 @@ type JwtTransactionResponse struct {
 	Msg   string `json:"msg"`
 }
 
+type ResGetFiles struct {
+	Error bool    `json:"error"`
+	Data  []*File `json:"data"`
+	Code  int     `json:"code"`
+	Type  int     `json:"type"`
+	Msg   string  `json:"msg"`
+}
+
 type JwtTransactionRequest struct {
 	TransactionID uuid.UUID `json:"transaction_id"`
 	Block         int       `json:"block"`
@@ -46,6 +54,7 @@ type JwtTransactionRequest struct {
 }
 
 type credential struct {
+	Id     string  `json:"id"`
 	From   string  `json:"from"`
 	To     string  `json:"to"`
 	Amount float64 `json:"amount"`

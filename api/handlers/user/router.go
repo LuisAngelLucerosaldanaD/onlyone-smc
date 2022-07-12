@@ -19,5 +19,6 @@ func RouterCreateUser(app *fiber.App, db *sqlx.DB, txID string) {
 	user.Get("/validate-identity-number/:inumber", h.getUserByIdentityNumber)
 	user.Post("/validate-identity", middleware.JWTProtected(), h.validateIdentity)
 	user.Get("/picture-profile", middleware.JWTProtected(), h.getUserPictureProfile)
+	user.Get("/wallets", middleware.JWTProtected(), h.getWalletByUserId)
 	user.Get("/:id", middleware.JWTProtected(), h.getUserById)
 }
