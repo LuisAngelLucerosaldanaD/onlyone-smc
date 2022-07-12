@@ -64,6 +64,7 @@ type credential struct {
 
 type Data struct {
 	Category       string       `json:"category"`
+	Type           int          `json:"type"`
 	IdentityNumber string       `json:"identity_number"`
 	Files          []*File      `json:"files"`
 	Name           string       `json:"name"`

@@ -210,6 +210,7 @@ func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 			Name:           m.Data.Name,
 			Description:    m.Data.Description,
 			Identifiers:    identifiers,
+			Type:           int32(m.Data.Type),
 		},
 	})
 
