@@ -92,10 +92,9 @@ func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 	clientWallet := wallet_proto.NewWalletServicesWalletClient(connAuth)
 	clientAccount := accounting_proto.NewAccountingServicesAccountingClient(connAuth)
 
-	bearer := c.Get("Authorization")
-	tkn := bearer[7:]
+	token := c.Get("Authorization")[7:]
 
-	ctx := grpcMetadata.AppendToOutgoingContext(context.Background(), "authorization", tkn)
+	ctx := grpcMetadata.AppendToOutgoingContext(context.Background(), "authorization", token)
 
 	if m.To == "" && m.Data.IdentityNumber == "" {
 		logger.Error.Printf("La wallet de destino es requerido")
