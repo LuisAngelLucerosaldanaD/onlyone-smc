@@ -104,7 +104,6 @@ func (h *handlerUser) createUser(c *fiber.Ctx) error {
 		Cellphone:       m.Cellphone,
 		BirthDate:       m.BirthDate.String(),
 	})
-
 	if err != nil {
 		logger.Error.Printf("No se pudo crear el usuario, error: %s", err)
 		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
@@ -123,7 +122,7 @@ func (h *handlerUser) createUser(c *fiber.Ctx) error {
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
-	res.Data = "Usuario creado correctamente, verifique su cuenta en el correo mandado a su correo electrónico"
+	res.Data = "Usuario creado correctamente, se envió un correo de confirmación a su correo electrónico"
 	res.Code, res.Type, res.Msg = msg.GetByCode(29, h.DB, h.TxID)
 	res.Error = false
 	return c.Status(http.StatusOK).JSON(res)
