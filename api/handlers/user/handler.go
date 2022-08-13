@@ -150,27 +150,23 @@ func (h *handlerUser) validateEmail(c *fiber.Ctx) error {
 
 	clientUser := users_proto.NewAuthServicesUsersClient(connAuth)
 
-	bearer := c.Get("Authorization")
-	tkn := bearer[7:]
-
-	ctx := grpcMetadata.AppendToOutgoingContext(context.Background(), "authorization", tkn)
-
-	resValidate, err := clientUser.ValidateEmail(ctx, &users_proto.ValidateEmailRequest{Email: emailStr})
+	resValidate, err := clientUser.ValidateEmail(context.Background(), &users_proto.ValidateEmailRequest{Email: emailStr})
 	if err != nil {
 		logger.Error.Printf("couldn't get user by email: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if resValidate == nil {
 		logger.Error.Printf("couldn't get user by email: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if resValidate.Error {
 		logger.Error.Printf(resValidate.Msg)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Data = resValidate.Data
+		res.Code, res.Type, res.Msg = msg.GetByCode(int(resValidate.Code), h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
@@ -202,12 +198,7 @@ func (h *handlerUser) validateNickname(c *fiber.Ctx) error {
 
 	clientUser := users_proto.NewAuthServicesUsersClient(connAuth)
 
-	bearer := c.Get("Authorization")
-	tkn := bearer[7:]
-
-	ctx := grpcMetadata.AppendToOutgoingContext(context.Background(), "authorization", tkn)
-
-	resValidate, err := clientUser.ValidateNickname(ctx, &users_proto.ValidateNicknameRequest{Nickname: nickname})
+	resValidate, err := clientUser.ValidateNickname(context.Background(), &users_proto.ValidateNicknameRequest{Nickname: nickname})
 	if err != nil {
 		logger.Error.Printf("couldn't get user by nickname: %v", err)
 		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
@@ -222,7 +213,8 @@ func (h *handlerUser) validateNickname(c *fiber.Ctx) error {
 
 	if resValidate.Error {
 		logger.Error.Printf(resValidate.Msg)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Data = resValidate.Data
+		res.Code, res.Type, res.Msg = msg.GetByCode(int(resValidate.Code), h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
@@ -671,12 +663,7 @@ func (h *handlerUser) getUserByIdentityNumber(c *fiber.Ctx) error {
 
 	clientUser := users_proto.NewAuthServicesUsersClient(connAuth)
 
-	bearer := c.Get("Authorization")
-	tkn := bearer[7:]
-
-	ctx := grpcMetadata.AppendToOutgoingContext(context.Background(), "authorization", tkn)
-
-	resUsr, err := clientUser.ValidIdentityNumber(ctx, &users_proto.RequestGetByIdentityNumber{IdentityNumber: usrIdentityNumber})
+	resUsr, err := clientUser.ValidIdentityNumber(context.Background(), &users_proto.RequestGetByIdentityNumber{IdentityNumber: usrIdentityNumber})
 	if err != nil {
 		logger.Error.Printf("couldn't get User by identity number: %v", err)
 		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
@@ -685,13 +672,14 @@ func (h *handlerUser) getUserByIdentityNumber(c *fiber.Ctx) error {
 
 	if resUsr == nil {
 		logger.Error.Printf("couldn't get User by identity number: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if resUsr.Error {
 		logger.Error.Printf(resUsr.Msg)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Data = resUsr.Msg
+		res.Code, res.Type, res.Msg = msg.GetByCode(int(resUsr.Code), h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 

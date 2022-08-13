@@ -2402,6 +2402,140 @@ func (x *ResUpdateUser) GetMsg() string {
 	return ""
 }
 
+type RqChangePwd struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Email    string `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	Nickname string `protobuf:"bytes,2,opt,name=nickname,proto3" json:"nickname,omitempty"`
+}
+
+func (x *RqChangePwd) Reset() {
+	*x = RqChangePwd{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_users_proto_msgTypes[30]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *RqChangePwd) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RqChangePwd) ProtoMessage() {}
+
+func (x *RqChangePwd) ProtoReflect() protoreflect.Message {
+	mi := &file_users_proto_msgTypes[30]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RqChangePwd.ProtoReflect.Descriptor instead.
+func (*RqChangePwd) Descriptor() ([]byte, []int) {
+	return file_users_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *RqChangePwd) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *RqChangePwd) GetNickname() string {
+	if x != nil {
+		return x.Nickname
+	}
+	return ""
+}
+
+type ResAnny struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Error bool   `protobuf:"varint,1,opt,name=error,proto3" json:"error,omitempty"`
+	Data  string `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
+	Code  int32  `protobuf:"varint,3,opt,name=code,proto3" json:"code,omitempty"`
+	Type  int32  `protobuf:"varint,4,opt,name=type,proto3" json:"type,omitempty"`
+	Msg   string `protobuf:"bytes,5,opt,name=msg,proto3" json:"msg,omitempty"`
+}
+
+func (x *ResAnny) Reset() {
+	*x = ResAnny{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_users_proto_msgTypes[31]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ResAnny) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResAnny) ProtoMessage() {}
+
+func (x *ResAnny) ProtoReflect() protoreflect.Message {
+	mi := &file_users_proto_msgTypes[31]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResAnny.ProtoReflect.Descriptor instead.
+func (*ResAnny) Descriptor() ([]byte, []int) {
+	return file_users_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *ResAnny) GetError() bool {
+	if x != nil {
+		return x.Error
+	}
+	return false
+}
+
+func (x *ResAnny) GetData() string {
+	if x != nil {
+		return x.Data
+	}
+	return ""
+}
+
+func (x *ResAnny) GetCode() int32 {
+	if x != nil {
+		return x.Code
+	}
+	return 0
+}
+
+func (x *ResAnny) GetType() int32 {
+	if x != nil {
+		return x.Type
+	}
+	return 0
+}
+
+func (x *ResAnny) GetMsg() string {
+	if x != nil {
+		return x.Msg
+	}
+	return ""
+}
+
 var File_users_proto protoreflect.FileDescriptor
 
 var file_users_proto_rawDesc = []byte{
@@ -2703,7 +2837,18 @@ var file_users_proto_rawDesc = []byte{
 	0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x05, 0x52, 0x04, 0x63, 0x6f, 0x64, 0x65, 0x12, 0x12, 0x0a,
 	0x04, 0x74, 0x79, 0x70, 0x65, 0x18, 0x04, 0x20, 0x01, 0x28, 0x05, 0x52, 0x04, 0x74, 0x79, 0x70,
 	0x65, 0x12, 0x10, 0x0a, 0x03, 0x6d, 0x73, 0x67, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03,
-	0x6d, 0x73, 0x67, 0x32, 0xd8, 0x0b, 0x0a, 0x11, 0x61, 0x75, 0x74, 0x68, 0x53, 0x65, 0x72, 0x76,
+	0x6d, 0x73, 0x67, 0x22, 0x3f, 0x0a, 0x0b, 0x52, 0x71, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x50,
+	0x77, 0x64, 0x12, 0x14, 0x0a, 0x05, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x05, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x12, 0x1a, 0x0a, 0x08, 0x6e, 0x69, 0x63, 0x6b,
+	0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x6e, 0x69, 0x63, 0x6b,
+	0x6e, 0x61, 0x6d, 0x65, 0x22, 0x6d, 0x0a, 0x07, 0x52, 0x65, 0x73, 0x41, 0x6e, 0x6e, 0x79, 0x12,
+	0x14, 0x0a, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x05,
+	0x65, 0x72, 0x72, 0x6f, 0x72, 0x12, 0x12, 0x0a, 0x04, 0x64, 0x61, 0x74, 0x61, 0x18, 0x02, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x04, 0x64, 0x61, 0x74, 0x61, 0x12, 0x12, 0x0a, 0x04, 0x63, 0x6f, 0x64,
+	0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x05, 0x52, 0x04, 0x63, 0x6f, 0x64, 0x65, 0x12, 0x12, 0x0a,
+	0x04, 0x74, 0x79, 0x70, 0x65, 0x18, 0x04, 0x20, 0x01, 0x28, 0x05, 0x52, 0x04, 0x74, 0x79, 0x70,
+	0x65, 0x12, 0x10, 0x0a, 0x03, 0x6d, 0x73, 0x67, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03,
+	0x6d, 0x73, 0x67, 0x32, 0xa3, 0x0c, 0x0a, 0x11, 0x61, 0x75, 0x74, 0x68, 0x53, 0x65, 0x72, 0x76,
 	0x69, 0x63, 0x65, 0x73, 0x55, 0x73, 0x65, 0x72, 0x73, 0x12, 0x49, 0x0a, 0x0a, 0x43, 0x72, 0x65,
 	0x61, 0x74, 0x65, 0x55, 0x73, 0x65, 0x72, 0x12, 0x18, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x73, 0x5f,
 	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
@@ -2796,9 +2941,14 @@ var file_users_proto_rawDesc = []byte{
 	0x65, 0x55, 0x73, 0x65, 0x72, 0x12, 0x19, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x73, 0x5f, 0x70, 0x72,
 	0x6f, 0x74, 0x6f, 0x2e, 0x52, 0x71, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x55, 0x73, 0x65, 0x72,
 	0x1a, 0x1a, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x73, 0x5f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x52,
-	0x65, 0x73, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x55, 0x73, 0x65, 0x72, 0x22, 0x00, 0x42, 0x0f,
-	0x5a, 0x0d, 0x2e, 0x2f, 0x75, 0x73, 0x65, 0x72, 0x73, 0x5f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62,
-	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x65, 0x73, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x55, 0x73, 0x65, 0x72, 0x22, 0x00, 0x12, 0x49,
+	0x0a, 0x15, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x50,
+	0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x12, 0x18, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x73, 0x5f,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x52, 0x71, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x50, 0x77,
+	0x64, 0x1a, 0x14, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x73, 0x5f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e,
+	0x52, 0x65, 0x73, 0x41, 0x6e, 0x6e, 0x79, 0x22, 0x00, 0x42, 0x0f, 0x5a, 0x0d, 0x2e, 0x2f, 0x75,
+	0x73, 0x65, 0x72, 0x73, 0x5f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x33,
 }
 
 var (
@@ -2813,7 +2963,7 @@ func file_users_proto_rawDescGZIP() []byte {
 	return file_users_proto_rawDescData
 }
 
-var file_users_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
+var file_users_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
 var file_users_proto_goTypes = []interface{}{
 	(*UserRequest)(nil),                      // 0: users_proto.UserRequest
 	(*UserResponse)(nil),                     // 1: users_proto.UserResponse
@@ -2845,6 +2995,8 @@ var file_users_proto_goTypes = []interface{}{
 	(*ResGetUserByIdentityNumber)(nil),       // 27: users_proto.ResGetUserByIdentityNumber
 	(*RqUpdateUser)(nil),                     // 28: users_proto.RqUpdateUser
 	(*ResUpdateUser)(nil),                    // 29: users_proto.ResUpdateUser
+	(*RqChangePwd)(nil),                      // 30: users_proto.RqChangePwd
+	(*ResAnny)(nil),                          // 31: users_proto.ResAnny
 }
 var file_users_proto_depIdxs = []int32{
 	3,  // 0: users_proto.UserResponse.data:type_name -> users_proto.User
@@ -2869,24 +3021,26 @@ var file_users_proto_depIdxs = []int32{
 	24, // 19: users_proto.authServicesUsers.GetUserWalletByIdentityNumber:input_type -> users_proto.RqGetUserWalletByIdentityNumber
 	26, // 20: users_proto.authServicesUsers.GetUserByIdentityNumber:input_type -> users_proto.RqGetUserByIdentityNumber
 	28, // 21: users_proto.authServicesUsers.UpdateUser:input_type -> users_proto.RqUpdateUser
-	2,  // 22: users_proto.authServicesUsers.CreateUser:output_type -> users_proto.responseCreateUser
-	10, // 23: users_proto.authServicesUsers.ActivateUser:output_type -> users_proto.ValidateResponse
-	10, // 24: users_proto.authServicesUsers.ValidateEmail:output_type -> users_proto.ValidateResponse
-	10, // 25: users_proto.authServicesUsers.ValidateNickname:output_type -> users_proto.ValidateResponse
-	1,  // 26: users_proto.authServicesUsers.GetUserById:output_type -> users_proto.UserResponse
-	10, // 27: users_proto.authServicesUsers.ValidateIdentity:output_type -> users_proto.ValidateResponse
-	10, // 28: users_proto.authServicesUsers.ValidateCertifier:output_type -> users_proto.ValidateResponse
-	12, // 29: users_proto.authServicesUsers.ValidIdentityNumber:output_type -> users_proto.ResponseGetByIdentityNumber
-	14, // 30: users_proto.authServicesUsers.UpdateUserPhoto:output_type -> users_proto.ResponseUpdateUserPhoto
-	16, // 31: users_proto.authServicesUsers.GetUserPhoto:output_type -> users_proto.ResponseGetUserPhoto
-	18, // 32: users_proto.authServicesUsers.ChangePassword:output_type -> users_proto.ResponseChangePwd
-	20, // 33: users_proto.authServicesUsers.CreateUserBySystem:output_type -> users_proto.ResponseCreateUserBySystem
-	22, // 34: users_proto.authServicesUsers.CreateUserWallet:output_type -> users_proto.ResponseCreateUserWallet
-	25, // 35: users_proto.authServicesUsers.GetUserWalletByIdentityNumber:output_type -> users_proto.ResGetUserWalletByIdentityNumber
-	27, // 36: users_proto.authServicesUsers.GetUserByIdentityNumber:output_type -> users_proto.ResGetUserByIdentityNumber
-	29, // 37: users_proto.authServicesUsers.UpdateUser:output_type -> users_proto.ResUpdateUser
-	22, // [22:38] is the sub-list for method output_type
-	6,  // [6:22] is the sub-list for method input_type
+	30, // 22: users_proto.authServicesUsers.RequestChangePassword:input_type -> users_proto.RqChangePwd
+	2,  // 23: users_proto.authServicesUsers.CreateUser:output_type -> users_proto.responseCreateUser
+	10, // 24: users_proto.authServicesUsers.ActivateUser:output_type -> users_proto.ValidateResponse
+	10, // 25: users_proto.authServicesUsers.ValidateEmail:output_type -> users_proto.ValidateResponse
+	10, // 26: users_proto.authServicesUsers.ValidateNickname:output_type -> users_proto.ValidateResponse
+	1,  // 27: users_proto.authServicesUsers.GetUserById:output_type -> users_proto.UserResponse
+	10, // 28: users_proto.authServicesUsers.ValidateIdentity:output_type -> users_proto.ValidateResponse
+	10, // 29: users_proto.authServicesUsers.ValidateCertifier:output_type -> users_proto.ValidateResponse
+	12, // 30: users_proto.authServicesUsers.ValidIdentityNumber:output_type -> users_proto.ResponseGetByIdentityNumber
+	14, // 31: users_proto.authServicesUsers.UpdateUserPhoto:output_type -> users_proto.ResponseUpdateUserPhoto
+	16, // 32: users_proto.authServicesUsers.GetUserPhoto:output_type -> users_proto.ResponseGetUserPhoto
+	18, // 33: users_proto.authServicesUsers.ChangePassword:output_type -> users_proto.ResponseChangePwd
+	20, // 34: users_proto.authServicesUsers.CreateUserBySystem:output_type -> users_proto.ResponseCreateUserBySystem
+	22, // 35: users_proto.authServicesUsers.CreateUserWallet:output_type -> users_proto.ResponseCreateUserWallet
+	25, // 36: users_proto.authServicesUsers.GetUserWalletByIdentityNumber:output_type -> users_proto.ResGetUserWalletByIdentityNumber
+	27, // 37: users_proto.authServicesUsers.GetUserByIdentityNumber:output_type -> users_proto.ResGetUserByIdentityNumber
+	29, // 38: users_proto.authServicesUsers.UpdateUser:output_type -> users_proto.ResUpdateUser
+	31, // 39: users_proto.authServicesUsers.RequestChangePassword:output_type -> users_proto.ResAnny
+	23, // [23:40] is the sub-list for method output_type
+	6,  // [6:23] is the sub-list for method input_type
 	6,  // [6:6] is the sub-list for extension type_name
 	6,  // [6:6] is the sub-list for extension extendee
 	0,  // [0:6] is the sub-list for field type_name
@@ -3258,6 +3412,30 @@ func file_users_proto_init() {
 				return nil
 			}
 		}
+		file_users_proto_msgTypes[30].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*RqChangePwd); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_users_proto_msgTypes[31].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ResAnny); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -3265,7 +3443,7 @@ func file_users_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_users_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   30,
+			NumMessages:   32,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
@@ -3307,6 +3485,7 @@ type AuthServicesUsersClient interface {
 	GetUserWalletByIdentityNumber(ctx context.Context, in *RqGetUserWalletByIdentityNumber, opts ...grpc.CallOption) (*ResGetUserWalletByIdentityNumber, error)
 	GetUserByIdentityNumber(ctx context.Context, in *RqGetUserByIdentityNumber, opts ...grpc.CallOption) (*ResGetUserByIdentityNumber, error)
 	UpdateUser(ctx context.Context, in *RqUpdateUser, opts ...grpc.CallOption) (*ResUpdateUser, error)
+	RequestChangePassword(ctx context.Context, in *RqChangePwd, opts ...grpc.CallOption) (*ResAnny, error)
 }
 
 type authServicesUsersClient struct {
@@ -3461,6 +3640,15 @@ func (c *authServicesUsersClient) UpdateUser(ctx context.Context, in *RqUpdateUs
 	return out, nil
 }
 
+func (c *authServicesUsersClient) RequestChangePassword(ctx context.Context, in *RqChangePwd, opts ...grpc.CallOption) (*ResAnny, error) {
+	out := new(ResAnny)
+	err := c.cc.Invoke(ctx, "/users_proto.authServicesUsers/RequestChangePassword", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServicesUsersServer is the server API for AuthServicesUsers service.
 type AuthServicesUsersServer interface {
 	CreateUser(context.Context, *UserRequest) (*ResponseCreateUser, error)
@@ -3479,6 +3667,7 @@ type AuthServicesUsersServer interface {
 	GetUserWalletByIdentityNumber(context.Context, *RqGetUserWalletByIdentityNumber) (*ResGetUserWalletByIdentityNumber, error)
 	GetUserByIdentityNumber(context.Context, *RqGetUserByIdentityNumber) (*ResGetUserByIdentityNumber, error)
 	UpdateUser(context.Context, *RqUpdateUser) (*ResUpdateUser, error)
+	RequestChangePassword(context.Context, *RqChangePwd) (*ResAnny, error)
 }
 
 // UnimplementedAuthServicesUsersServer can be embedded to have forward compatible implementations.
@@ -3532,6 +3721,9 @@ func (*UnimplementedAuthServicesUsersServer) GetUserByIdentityNumber(context.Con
 }
 func (*UnimplementedAuthServicesUsersServer) UpdateUser(context.Context, *RqUpdateUser) (*ResUpdateUser, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
+}
+func (*UnimplementedAuthServicesUsersServer) RequestChangePassword(context.Context, *RqChangePwd) (*ResAnny, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RequestChangePassword not implemented")
 }
 
 func RegisterAuthServicesUsersServer(s *grpc.Server, srv AuthServicesUsersServer) {
@@ -3826,6 +4018,24 @@ func _AuthServicesUsers_UpdateUser_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthServicesUsers_RequestChangePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RqChangePwd)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServicesUsersServer).RequestChangePassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/users_proto.authServicesUsers/RequestChangePassword",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServicesUsersServer).RequestChangePassword(ctx, req.(*RqChangePwd))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _AuthServicesUsers_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "users_proto.authServicesUsers",
 	HandlerType: (*AuthServicesUsersServer)(nil),
@@ -3893,6 +4103,10 @@ var _AuthServicesUsers_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateUser",
 			Handler:    _AuthServicesUsers_UpdateUser_Handler,
+		},
+		{
+			MethodName: "RequestChangePassword",
+			Handler:    _AuthServicesUsers_RequestChangePassword_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
