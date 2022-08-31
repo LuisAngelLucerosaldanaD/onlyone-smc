@@ -15,7 +15,6 @@ import (
 )
 
 const (
-	AWS_BUCKET = "bjungle-files"
 	AWS_REGION = "us-east-1"
 )
 
@@ -256,4 +255,47 @@ func sessionAws() (client.ConfigProvider, error) {
 		return sess, err
 	}
 	return sess, nil
+}
+
+func GetUserValuesID(img []byte) (*User, error) {
+	sess, err := sessionAws()
+	if err != nil {
+		return nil, err
+	}
+
+	svc := textract.New(sess)
+	input := &textract.AnalyzeIDInput{
+		DocumentPages: []*textract.Document{
+			{
+				Bytes: img,
+			},
+		},
+	}
+	result, err := svc.AnalyzeID(input)
+	if err != nil {
+		return nil, err
+	}
+
+	document := result.IdentityDocuments[0]
+	user := &User{}
+	for _, field := range document.IdentityDocumentFields {
+		switch *field.Type.Text {
+		case "MIDDLE_NAME":
+			user.Names += " " + *field.ValueDetection.Text
+			break
+		case "LAST_NAME":
+			user.Surname = *field.ValueDetection.Text
+			break
+		case "FIRST_NAME":
+			user.Names = *field.ValueDetection.Text
+			break
+		case "DOCUMENT_NUMBER":
+			user.IdentityNumber = *field.ValueDetection.Text
+			break
+		}
+	}
+
+	fmt.Println(result)
+
+	return user, nil
 }

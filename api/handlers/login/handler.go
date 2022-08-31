@@ -21,14 +21,16 @@ type handlerLogin struct {
 // Login godoc
 // @Summary Login OnlyOne Smart Contract
 // @Description Login OnlyOne Smart Contract
-// @Accept  json requestLogin
+// @tags Authentication
+// @Accept  json
 // @Produce  json
-// @Success 200 {object} responseLogin
+// @Param Login body RequestLogin true "Request login"
+// @Success 200 {object} ResponseLogin
 // @Router /api/v1/login [post]
 func (h *handlerLogin) Login(c *fiber.Ctx) error {
 
-	res := responseLogin{Error: true}
-	m := requestLogin{}
+	res := ResponseLogin{Error: true}
+	m := RequestLogin{}
 	e := env.NewConfiguration()
 	err := c.BodyParser(&m)
 	if err != nil {

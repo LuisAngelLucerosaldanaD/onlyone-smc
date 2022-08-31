@@ -47,13 +47,15 @@ func init() {
 	}
 }
 
-// create credential godoc
-// @Summary OnlyOne Smart Contract
+// createCredential godoc
+// @Summary Create credential
 // @Description Create credential
+// @Tags Credentials
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} requestCreateTransaction
-// @Success 202 {object} responseCreateCredential
+// @Param Authorization header string true "Authorization" default(Bearer <Add access token here>)
+// @Param createCredential body requestCreateTransaction true "Request create transaction"
+// @Success 200 {object} responseCreateCredential
 // @Router /api/v1/credentials/create [post]
 func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 	res := responseCreateCredential{Error: true}
@@ -237,15 +239,18 @@ func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(res)
 }
 
-// get All Credentials godoc
-// @Summary OnlyOne Smart Contract
-// @Description Get All Credentials
+// getAllCredentials godoc
+// @Summary Get all Credentials by block id
+// @Description Get All Credentials ny block id
+// @Tags Credentials
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} requestCreateTransaction
-// @Success 202 {object} responseCreateTransaction
-// @Router /api/v1/credentials/all [get]
-// @Authorization Bearer token
+// @Param Authorization header string true "Authorization" default(Bearer <Add access token here>)
+// @Param block_id path int64 true "Block ID"
+// @Param limit path int true "Limit of pagination"
+// @Param offset path int true "Salt of pagination"
+// @Success 200 {object} responseAllCredentials
+// @Router /api/v1/credentials/all/{block_id}/{limit}/{offset} [get]
 func (h *handlerCredentials) getAllCredentials(c *fiber.Ctx) error {
 	res := responseAllCredentials{Error: true}
 	e := env.NewConfiguration()
@@ -326,15 +331,16 @@ func (h *handlerCredentials) getAllCredentials(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(res)
 }
 
-// get JWTTransaction godoc
-// @Summary OnlyOne Smart Contract
+// getJWTTransaction godoc
+// @Summary Get JWTTransaction By ID
 // @Description Get JWTTransaction By ID
+// @Tags Credentials
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} JwtTransactionRequest
-// @Success 202 {object} JwtTransactionRequest
+// @Param Authorization header string true "Authorization" default(Bearer <Add access token here>)
+// @Param getJWTTransaction body JwtTransactionRequest true "Generate JWT Request"
+// @Success 200 {object} JwtTransactionResponse
 // @Router /api/v1/credentials/jwt [post]
-// @Authorization Bearer token
 func (h *handlerCredentials) getJWTTransaction(c *fiber.Ctx) error {
 	res := JwtTransactionResponse{Error: true}
 
@@ -364,13 +370,15 @@ func (h *handlerCredentials) getJWTTransaction(c *fiber.Ctx) error {
 }
 
 // getAllTransactionFiles godoc
-// @Summary OnlyOne Smart Contract
+// @Summary Get transaction files
 // @Description Get transaction files
+// @Tags Credentials
 // @Accept  json
 // @Produce  json
+// @Param Authorization header string true "Authorization" default(Bearer <Add access token here>)
+// @Param trx path int true "transaction id"
 // @Success 200 {object} ResGetFiles
-// @Router /api/v1/credentials/files {trx} [get]
-// @Authorization Bearer token
+// @Router /api/v1/credentials/files/{trx} [get]
 func (h *handlerCredentials) getAllTransactionFiles(c *fiber.Ctx) error {
 	res := ResGetFiles{Error: true}
 	e := env.NewConfiguration()

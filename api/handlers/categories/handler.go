@@ -17,6 +17,14 @@ type handlerCategories struct {
 	TxID string
 }
 
+// GetAllCategories godoc
+// @Summary Get all categories of credentials
+// @Description Get all categories of credentials
+// @tags Categories
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} responseAllCategories
+// @Router /api/v1/categories/all [get]
 func (h *handlerCategories) GetAllCategories(c *fiber.Ctx) error {
 	res := responseAllCategories{Error: true}
 	srvCfg := cfg.NewServerCfg(h.DB, nil, h.TxID)
@@ -91,6 +99,16 @@ func (h *handlerCategories) GetAllCategories(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(res)
 }
 
+// CreateStyleOfCredential godoc
+// @Summary create credential's style of category
+// @Description create credential's style of category
+// @tags Categories
+// @Accept  json
+// @Produce  json
+// @Param Authorization header string true "Authorization" default(Bearer <Add access token here>)
+// @Param CreateStyleOfCredential body requestCreateStyle true "request of create credential's style"
+// @Success 200 {object} resAny
+// @Router /api/v1/categories/create-style [post]
 func (h *handlerCategories) CreateStyleOfCredential(c *fiber.Ctx) error {
 	res := resAny{Error: true}
 	srvCfg := cfg.NewServerCfg(h.DB, nil, h.TxID)

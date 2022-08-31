@@ -1,0 +1,1383 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Documentation Smart Contract",
+        "title": "OnlyOne Smart Contract",
+        "termsOfService": "https://www.bjungle.net/terms/",
+        "contact": {
+            "name": "API Support",
+            "email": "info@bjungle.net"
+        },
+        "license": {
+            "name": "Software Owner",
+            "url": "https://www.bjungle.net/terms/licenses"
+        },
+        "version": "1.0"
+    },
+    "host": "http://127.0.0.1:50050",
+    "basePath": "/",
+    "paths": {
+        "/api/v1/categories/all": {
+            "get": {
+                "description": "Get all categories of credentials",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Get all categories of credentials",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/categories.responseAllCategories"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/categories/create-style": {
+            "post": {
+                "description": "create credential's style of category",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "create credential's style of category",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "request of create credential's style",
+                        "name": "CreateStyleOfCredential",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/categories.requestCreateStyle"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/categories.resAny"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/credentials/all/{block_id}/{limit}/{offset}": {
+            "get": {
+                "description": "Get All Credentials ny block id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Credentials"
+                ],
+                "summary": "Get all Credentials by block id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Block ID",
+                        "name": "block_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit of pagination",
+                        "name": "limit",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Salt of pagination",
+                        "name": "offset",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/credentials.responseAllCredentials"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/credentials/create": {
+            "post": {
+                "description": "Create credential",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Credentials"
+                ],
+                "summary": "Create credential",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Request create transaction",
+                        "name": "createCredential",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/credentials.requestCreateTransaction"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/credentials.responseCreateCredential"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/credentials/files/{trx}": {
+            "get": {
+                "description": "Get transaction files",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Credentials"
+                ],
+                "summary": "Get transaction files",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "transaction id",
+                        "name": "trx",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/credentials.ResGetFiles"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/credentials/jwt": {
+            "post": {
+                "description": "Get JWTTransaction By ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Credentials"
+                ],
+                "summary": "Get JWTTransaction By ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Generate JWT Request",
+                        "name": "getJWTTransaction",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/credentials.JwtTransactionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/credentials.JwtTransactionResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/login": {
+            "post": {
+                "description": "Login OnlyOne Smart Contract",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Login OnlyOne Smart Contract",
+                "parameters": [
+                    {
+                        "description": "Request login",
+                        "name": "Login",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/login.RequestLogin"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/login.ResponseLogin"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/create": {
+            "post": {
+                "description": "Create User",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Create User of OnlyOne - BLion",
+                "parameters": [
+                    {
+                        "description": "Request create user",
+                        "name": "createUser",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/users.requestCreateUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/users.responseCreateUser"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/picture-profile": {
+            "get": {
+                "description": "get profile picture of user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "get user by identity number",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/users.responseUpdateUser"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/update-password": {
+            "post": {
+                "description": "change password of user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "change password of user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "request of update password",
+                        "name": "changePassword",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/users.requestUpdatePassword"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/users.responseUpdateUser"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/validate-email/{email}": {
+            "get": {
+                "description": "validate user by email",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "validate user by email",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "email of user",
+                        "name": "email",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/users.responseUserValid"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/validate-identity": {
+            "post": {
+                "description": "validity user identity and create wallet",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "validity user identity and create wallet",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "request of validate user identity",
+                        "name": "validateIdentity",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/users.requestValidateIdentity"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/users.responseValidateUser"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/validate-identity-number/{inumber}": {
+            "get": {
+                "description": "get user by identity number",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "get user by identity number",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "user identity number",
+                        "name": "inumber",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/users.responseUser"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/validate-nickname/{nickname}": {
+            "get": {
+                "description": "validate user by nickname",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "validate user by nickname",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "username (nickname) of user",
+                        "name": "nickname",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/users.responseUserValid"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/wallets": {
+            "get": {
+                "description": "Get Wallet by user id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "OnlyOne Smart Contract",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/users.responseGetWallets"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/{id}": {
+            "get": {
+                "description": "get user by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "get user by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "user ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/users.responseUser"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "categories.Categories": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "categories.Styles": {
+            "type": "object",
+            "properties": {
+                "background": {
+                    "type": "string"
+                },
+                "identifiers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/categories.identifiers"
+                    }
+                },
+                "logo": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "categories.identifiers": {
+            "type": "object",
+            "properties": {
+                "attributes": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "categories.requestCreateStyle": {
+            "type": "object",
+            "properties": {
+                "back": {
+                    "type": "string"
+                },
+                "background": {
+                    "type": "string"
+                },
+                "category_id": {
+                    "type": "string"
+                },
+                "front": {
+                    "type": "string"
+                },
+                "logo": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "categories.resAny": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {},
+                "error": {
+                    "type": "boolean"
+                },
+                "msg": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "categories.resCategories": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "$ref": "#/definitions/categories.Categories"
+                },
+                "styles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/categories.Styles"
+                    }
+                }
+            }
+        },
+        "categories.responseAllCategories": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/categories.resCategories"
+                    }
+                },
+                "error": {
+                    "type": "boolean"
+                },
+                "msg": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "credentials.Attribute": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "credentials.Data": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/credentials.File"
+                    }
+                },
+                "identifiers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/credentials.Identifier"
+                    }
+                },
+                "identity_number": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "credentials.File": {
+            "type": "object",
+            "properties": {
+                "file_encode": {
+                    "type": "string"
+                },
+                "id_file": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "credentials.Identifier": {
+            "type": "object",
+            "properties": {
+                "attributes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/credentials.Attribute"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "credentials.JwtTransactionRequest": {
+            "type": "object",
+            "properties": {
+                "attributes_id": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "block": {
+                    "type": "integer"
+                },
+                "files_id": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "from": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": "string"
+                },
+                "transaction_id": {
+                    "type": "string"
+                },
+                "ttl": {
+                    "type": "integer"
+                },
+                "verify": {
+                    "type": "string"
+                }
+            }
+        },
+        "credentials.JwtTransactionResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "string"
+                },
+                "error": {
+                    "type": "boolean"
+                },
+                "msg": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "credentials.ResGetFiles": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/credentials.File"
+                    }
+                },
+                "error": {
+                    "type": "boolean"
+                },
+                "msg": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "credentials.credential": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "data": {
+                    "type": "string"
+                },
+                "from": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": "string"
+                },
+                "type_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "credentials.requestCreateTransaction": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "data": {
+                    "$ref": "#/definitions/credentials.Data"
+                },
+                "from": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": "string"
+                },
+                "type_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "credentials.responseAllCredentials": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/credentials.credential"
+                    }
+                },
+                "error": {
+                    "type": "boolean"
+                },
+                "msg": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "credentials.responseCreateCredential": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "string"
+                },
+                "error": {
+                    "type": "boolean"
+                },
+                "msg": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "login.RequestLogin": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "login.ResponseLogin": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/login.Token"
+                },
+                "error": {
+                    "type": "boolean"
+                },
+                "msg": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "login.Token": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "birth_date": {
+                    "type": "string"
+                },
+                "block_date": {
+                    "type": "string"
+                },
+                "cellphone": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
+                },
+                "disabled_date": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "failed_attempts": {
+                    "type": "integer"
+                },
+                "full_path_photo": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "id_number": {
+                    "type": "string"
+                },
+                "id_role": {
+                    "type": "integer"
+                },
+                "id_type": {
+                    "type": "integer"
+                },
+                "id_user": {
+                    "type": "string"
+                },
+                "is_deleted": {
+                    "type": "boolean"
+                },
+                "last_change_password": {
+                    "type": "string"
+                },
+                "last_login": {
+                    "type": "string"
+                },
+                "lastname": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "real_ip": {
+                    "type": "string"
+                },
+                "recovery_account_at": {
+                    "type": "string"
+                },
+                "rsa_private": {
+                    "type": "string"
+                },
+                "rsa_public": {
+                    "type": "string"
+                },
+                "status_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "verified_at": {
+                    "type": "string"
+                },
+                "verified_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Wallet": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "identity_number": {
+                    "type": "string"
+                },
+                "ip_device": {
+                    "type": "string"
+                },
+                "mnemonic": {
+                    "type": "string"
+                },
+                "rsa_private": {
+                    "type": "string"
+                },
+                "rsa_private_device": {
+                    "type": "string"
+                },
+                "rsa_public": {
+                    "type": "string"
+                },
+                "rsa_public_device": {
+                    "type": "string"
+                },
+                "status_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "users.requestCreateUser": {
+            "type": "object",
+            "properties": {
+                "birth_date": {
+                    "type": "string"
+                },
+                "cellphone": {
+                    "type": "string"
+                },
+                "confirm_password": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "id_number": {
+                    "type": "string"
+                },
+                "id_type": {
+                    "type": "integer"
+                },
+                "lastname": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "users.requestUpdatePassword": {
+            "type": "object",
+            "properties": {
+                "confirm_password": {
+                    "type": "string"
+                },
+                "new_password": {
+                    "type": "string"
+                },
+                "old_password": {
+                    "type": "string"
+                }
+            }
+        },
+        "users.requestValidateIdentity": {
+            "type": "object",
+            "properties": {
+                "confirm_encode": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "identity_encode": {
+                    "type": "string"
+                },
+                "identity_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "users.responseCreateUser": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "string"
+                },
+                "error": {
+                    "type": "boolean"
+                },
+                "msg": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "users.responseGetWallets": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Wallet"
+                    }
+                },
+                "error": {
+                    "type": "boolean"
+                },
+                "msg": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "users.responseUpdateUser": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "string"
+                },
+                "error": {
+                    "type": "boolean"
+                },
+                "msg": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "users.responseUser": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "error": {
+                    "type": "boolean"
+                },
+                "msg": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "users.responseUserValid": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "string"
+                },
+                "error": {
+                    "type": "boolean"
+                },
+                "msg": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "users.responseValidateUser": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/models.Wallet"
+                },
+                "error": {
+                    "type": "boolean"
+                },
+                "msg": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "description": "Credentials of OnlyOne Clients",
+            "name": "Credentials"
+        },
+        {
+            "description": "Methods of user",
+            "name": "User"
+        },
+        {
+            "description": "Methods of Authentication",
+            "name": "Authentication"
+        },
+        {
+            "description": "Categories of credentials",
+            "name": "Categories"
+        }
+    ]
+}

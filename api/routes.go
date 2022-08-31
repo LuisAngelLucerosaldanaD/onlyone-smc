@@ -13,18 +13,9 @@ import (
 	"onlyone_smc/api/handlers/credentials"
 	"onlyone_smc/api/handlers/login"
 	users "onlyone_smc/api/handlers/user"
+	_ "onlyone_smc/docs"
 )
 
-// @title OnlyOne Smart Contract.
-// @version 1.0
-// @description Documentation Smart Contract.
-// @termsOfService https://www.bjungle.net/terms/
-// @contact.name API Support.
-// @contact.email info@bjungle.net
-// @license.name Software Owner
-// @license.url https://www.bjungle.net/terms/licenses
-// @host localhost:50025
-// @BasePath /
 func routes(db *sqlx.DB, loggerHttp bool, allowedOrigins string) *fiber.App {
 	app := fiber.New()
 

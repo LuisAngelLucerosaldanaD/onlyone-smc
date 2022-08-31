@@ -1,12 +1,12 @@
 package login
 
-type requestLogin struct {
+type RequestLogin struct {
 	Nickname string `json:"nickname"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-type responseLogin struct {
+type ResponseLogin struct {
 	Error bool   `json:"error"`
 	Data  Token  `json:"data"`
 	Code  int    `json:"code"`

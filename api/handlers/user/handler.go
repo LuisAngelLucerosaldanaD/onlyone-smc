@@ -29,13 +29,14 @@ type handlerUser struct {
 	TxID string
 }
 
-// create user godoc
-// @Summary OnlyOne Smart Contract
+// createUser godoc
+// @Summary Create User of OnlyOne - BLion
 // @Description Create User
+// @tags User
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} requestCreateUser
-// @Success 202 {object} responseCreateUser
+// @Param createUser body requestCreateUser true "Request create user"
+// @Success 200 {object} responseCreateUser
 // @Router /api/v1/user/create [post]
 func (h *handlerUser) createUser(c *fiber.Ctx) error {
 	res := responseCreateUser{Error: true}
@@ -128,13 +129,15 @@ func (h *handlerUser) createUser(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(res)
 }
 
-// validate user by email
-// @Summary OnlyOne Smart Contract
+// validateEmail godoc
+// @Summary validate user by email
 // @Description validate user by email
+// @tags User
 // @Accept  json
 // @Produce  json
-// @Success 202 {object} responseUserValid
-// @Router /validate-email/:email [get]
+// @Param email path string true "email of user"
+// @Success 200 {object} responseUserValid
+// @Router /api/v1/user/validate-email/{email} [get]
 func (h *handlerUser) validateEmail(c *fiber.Ctx) error {
 	res := responseUserValid{Error: true}
 	emailStr := c.Params("email")
@@ -176,13 +179,15 @@ func (h *handlerUser) validateEmail(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(res)
 }
 
-// validate user by nickname
-// @Summary OnlyOne Smart Contract
+// validateNickname godoc
+// @Summary validate user by nickname
 // @Description validate user by nickname
+// @tags User
 // @Accept  json
 // @Produce  json
-// @Success 202 {object} responseUserValid
-// @Router /validate-nickname/:nickname [get]
+// @Param nickname path string true "username (nickname) of user"
+// @Success 200 {object} responseUserValid
+// @Router /api/v1/user/validate-nickname/{nickname} [get]
 func (h *handlerUser) validateNickname(c *fiber.Ctx) error {
 	res := responseUserValid{Error: true}
 	nickname := c.Params("nickname")
@@ -224,13 +229,16 @@ func (h *handlerUser) validateNickname(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(res)
 }
 
-// get user by ID
-// @Summary OnlyOne Smart Contract
+// getUserById godoc
+// @Summary get user by ID
 // @Description get user by ID
+// @tags User
 // @Accept  json
 // @Produce  json
+// @Param Authorization header string true "Authorization" default(Bearer <Add access token here>)
+// @Param id path string true "user ID"
 // @Success 202 {object} responseUser
-// @Router /api/v1/user/:id [get]
+// @Router /api/v1/user/{id} [get]
 func (h *handlerUser) getUserById(c *fiber.Ctx) error {
 	res := responseUser{Error: true}
 	usrId := c.Params("id")
@@ -313,12 +321,15 @@ func (h *handlerUser) getUserById(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(res)
 }
 
-// validate user by identity number
-// @Summary blockchain
-// @Description validate user by identity number
+// validateIdentity godoc
+// @Summary validity user identity and create wallet
+// @Description validity user identity and create wallet
+// @tags User
 // @Accept  json
 // @Produce  json
-// @Success 202 {object} responseValidateUser
+// @Param Authorization header string true "Authorization" default(Bearer <Add access token here>)
+// @Param validateIdentity body requestValidateIdentity true "request of validate user identity"
+// @Success 200 {object} responseValidateUser
 // @Router /api/v1/user/validate-identity [post]
 func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 	res := responseValidateUser{Error: true}
@@ -351,10 +362,9 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 	clientWallet := wallet_proto.NewWalletServicesWalletClient(connAuth)
 	clientAccount := accounting_proto.NewAccountingServicesAccountingClient(connAuth)
 
-	bearer := c.Get("Authorization")
-	tkn := bearer[7:]
+	token := c.Get("Authorization")[7:]
 
-	ctx := grpcMetadata.AppendToOutgoingContext(context.Background(), "authorization", tkn)
+	ctx := grpcMetadata.AppendToOutgoingContext(context.Background(), "authorization", token)
 
 	identityBytes, err := base64.StdEncoding.DecodeString(req.IdentityEncode)
 	if err != nil {
@@ -369,6 +379,8 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 		res.Code, res.Type, res.Msg = msg.GetByCode(1, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
+
+	aws_ia.GetUserValuesID(identityBytes)
 
 	userFields, err := aws_ia.GetUserFields(identityBytes)
 	if err != nil {
@@ -642,13 +654,16 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(res)
 }
 
-// getUserByIdentityNumber
-// @Summary OnlyOne Smart Contract
+// getUserByIdentityNumber godoc
+// @Summary get user by identity number
 // @Description get user by identity number
+// @tags User
 // @Accept  json
 // @Produce  json
-// @Success 202 {object} responseUser
-// @Router /api/v1/user/:inumber [get]
+// @Param Authorization header string true "Authorization" default(Bearer <Add access token here>)
+// @Param inumber path string true "user identity number"
+// @Success 200 {object} responseUser
+// @Router /api/v1/user/validate-identity-number/{inumber} [get]
 func (h *handlerUser) getUserByIdentityNumber(c *fiber.Ctx) error {
 	res := responseUserValid{Error: true}
 	usrIdentityNumber := c.Params("inumber")
@@ -690,13 +705,14 @@ func (h *handlerUser) getUserByIdentityNumber(c *fiber.Ctx) error {
 }
 
 // getUserPictureProfile godoc
-// @Summary OnlyOne Smart Contract
-// @Description getUserPictureProfile
+// @Summary get user by identity number
+// @Description get profile picture of user
+// @tags User
 // @Accept  json
 // @Produce  json
-// @Success 202 {object} responseUpdateUser
-// @Router /api/v1/user/picture-profile [GET]
-// @Authorization Bearer token
+// @Param Authorization header string true "Authorization" default(Bearer <Add access token here>)
+// @Success 200 {object} responseUpdateUser
+// @Router /api/v1/user/picture-profile [get]
 func (h *handlerUser) getUserPictureProfile(c *fiber.Ctx) error {
 	res := responseUpdateUser{Error: true, Data: ""}
 	u, err := helpers.GetUserContextV2(c)
@@ -771,13 +787,15 @@ func (h *handlerUser) getUserPictureProfile(c *fiber.Ctx) error {
 }
 
 // changePassword godoc
-// @Summary OnlyOne Smart Contract
-// @Description changePassword
+// @Summary change password of user
+// @Description change password of user
+// @tags User
 // @Accept  json
 // @Produce  json
-// @Success 202 {object} responseUpdateUser
-// @Router /api/v1/user/update-password [GET]
-// @Authorization Bearer token
+// @Param Authorization header string true "Authorization" default(Bearer <Add access token here>)
+// @Param changePassword body requestUpdatePassword true "request of update password"
+// @Success 200 {object} responseUpdateUser
+// @Router /api/v1/user/update-password [post]
 func (h *handlerUser) changePassword(c *fiber.Ctx) error {
 	res := responseUpdateUser{Error: true, Data: ""}
 	e := env.NewConfiguration()
@@ -836,10 +854,12 @@ func (h *handlerUser) changePassword(c *fiber.Ctx) error {
 // getWalletByUserId godoc
 // @Summary OnlyOne Smart Contract
 // @Description Get Wallet by user id
+// @tags User
 // @Accept  json
 // @Produce  json
+// @Param Authorization header string true "Authorization" default(Bearer <Add access token here>)
 // @Success 200 {object} responseGetWallets
-// @Router /api/v1/wallet/user [get]
+// @Router /api/v1/user/wallets [get]
 func (h *handlerUser) getWalletByUserId(c *fiber.Ctx) error {
 	e := env.NewConfiguration()
 	res := responseGetWallets{Error: true}

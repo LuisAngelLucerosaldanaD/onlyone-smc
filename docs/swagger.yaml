@@ -1,0 +1,909 @@
+basePath: /
+definitions:
+  categories.Categories:
+    properties:
+      color:
+        type: string
+      created_at:
+        type: string
+      icon:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  categories.Styles:
+    properties:
+      background:
+        type: string
+      identifiers:
+        items:
+          $ref: '#/definitions/categories.identifiers'
+        type: array
+      logo:
+        type: string
+      type:
+        type: integer
+    type: object
+  categories.identifiers:
+    properties:
+      attributes:
+        type: string
+      type:
+        type: string
+    type: object
+  categories.requestCreateStyle:
+    properties:
+      back:
+        type: string
+      background:
+        type: string
+      category_id:
+        type: string
+      front:
+        type: string
+      logo:
+        type: string
+      type:
+        type: integer
+    type: object
+  categories.resAny:
+    properties:
+      code:
+        type: integer
+      data: {}
+      error:
+        type: boolean
+      msg:
+        type: string
+      type:
+        type: integer
+    type: object
+  categories.resCategories:
+    properties:
+      category:
+        $ref: '#/definitions/categories.Categories'
+      styles:
+        items:
+          $ref: '#/definitions/categories.Styles'
+        type: array
+    type: object
+  categories.responseAllCategories:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/categories.resCategories'
+        type: array
+      error:
+        type: boolean
+      msg:
+        type: string
+      type:
+        type: integer
+    type: object
+  credentials.Attribute:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      value:
+        type: string
+    type: object
+  credentials.Data:
+    properties:
+      category:
+        type: string
+      description:
+        type: string
+      files:
+        items:
+          $ref: '#/definitions/credentials.File'
+        type: array
+      identifiers:
+        items:
+          $ref: '#/definitions/credentials.Identifier'
+        type: array
+      identity_number:
+        type: string
+      name:
+        type: string
+      type:
+        type: integer
+    type: object
+  credentials.File:
+    properties:
+      file_encode:
+        type: string
+      id_file:
+        type: integer
+      name:
+        type: string
+    type: object
+  credentials.Identifier:
+    properties:
+      attributes:
+        items:
+          $ref: '#/definitions/credentials.Attribute'
+        type: array
+      name:
+        type: string
+    type: object
+  credentials.JwtTransactionRequest:
+    properties:
+      attributes_id:
+        items:
+          type: integer
+        type: array
+      block:
+        type: integer
+      files_id:
+        items:
+          type: integer
+        type: array
+      from:
+        type: string
+      to:
+        type: string
+      transaction_id:
+        type: string
+      ttl:
+        type: integer
+      verify:
+        type: string
+    type: object
+  credentials.JwtTransactionResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        type: string
+      error:
+        type: boolean
+      msg:
+        type: string
+      type:
+        type: integer
+    type: object
+  credentials.ResGetFiles:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/credentials.File'
+        type: array
+      error:
+        type: boolean
+      msg:
+        type: string
+      type:
+        type: integer
+    type: object
+  credentials.credential:
+    properties:
+      amount:
+        type: number
+      data:
+        type: string
+      from:
+        type: string
+      id:
+        type: string
+      to:
+        type: string
+      type_id:
+        type: integer
+    type: object
+  credentials.requestCreateTransaction:
+    properties:
+      amount:
+        type: number
+      data:
+        $ref: '#/definitions/credentials.Data'
+      from:
+        type: string
+      to:
+        type: string
+      type_id:
+        type: integer
+    type: object
+  credentials.responseAllCredentials:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/credentials.credential'
+        type: array
+      error:
+        type: boolean
+      msg:
+        type: string
+      type:
+        type: integer
+    type: object
+  credentials.responseCreateCredential:
+    properties:
+      code:
+        type: integer
+      data:
+        type: string
+      error:
+        type: boolean
+      msg:
+        type: string
+      type:
+        type: integer
+    type: object
+  login.RequestLogin:
+    properties:
+      email:
+        type: string
+      nickname:
+        type: string
+      password:
+        type: string
+    type: object
+  login.ResponseLogin:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/login.Token'
+      error:
+        type: boolean
+      msg:
+        type: string
+      type:
+        type: integer
+    type: object
+  login.Token:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  models.User:
+    properties:
+      birth_date:
+        type: string
+      block_date:
+        type: string
+      cellphone:
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      disabled_date:
+        type: string
+      email:
+        type: string
+      failed_attempts:
+        type: integer
+      full_path_photo:
+        type: string
+      id:
+        type: string
+      id_number:
+        type: string
+      id_role:
+        type: integer
+      id_type:
+        type: integer
+      id_user:
+        type: string
+      is_deleted:
+        type: boolean
+      last_change_password:
+        type: string
+      last_login:
+        type: string
+      lastname:
+        type: string
+      name:
+        type: string
+      nickname:
+        type: string
+      password:
+        type: string
+      real_ip:
+        type: string
+      recovery_account_at:
+        type: string
+      rsa_private:
+        type: string
+      rsa_public:
+        type: string
+      status_id:
+        type: integer
+      updated_at:
+        type: string
+      verified_at:
+        type: string
+      verified_code:
+        type: string
+    type: object
+  models.Wallet:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      identity_number:
+        type: string
+      ip_device:
+        type: string
+      mnemonic:
+        type: string
+      rsa_private:
+        type: string
+      rsa_private_device:
+        type: string
+      rsa_public:
+        type: string
+      rsa_public_device:
+        type: string
+      status_id:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  users.requestCreateUser:
+    properties:
+      birth_date:
+        type: string
+      cellphone:
+        type: string
+      confirm_password:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      id_number:
+        type: string
+      id_type:
+        type: integer
+      lastname:
+        type: string
+      name:
+        type: string
+      nickname:
+        type: string
+      password:
+        type: string
+    type: object
+  users.requestUpdatePassword:
+    properties:
+      confirm_password:
+        type: string
+      new_password:
+        type: string
+      old_password:
+        type: string
+    type: object
+  users.requestValidateIdentity:
+    properties:
+      confirm_encode:
+        type: string
+      country:
+        type: string
+      identity_encode:
+        type: string
+      identity_number:
+        type: string
+    type: object
+  users.responseCreateUser:
+    properties:
+      code:
+        type: integer
+      data:
+        type: string
+      error:
+        type: boolean
+      msg:
+        type: string
+      type:
+        type: integer
+    type: object
+  users.responseGetWallets:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/models.Wallet'
+        type: array
+      error:
+        type: boolean
+      msg:
+        type: string
+      type:
+        type: integer
+    type: object
+  users.responseUpdateUser:
+    properties:
+      code:
+        type: integer
+      data:
+        type: string
+      error:
+        type: boolean
+      msg:
+        type: string
+      type:
+        type: integer
+    type: object
+  users.responseUser:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/models.User'
+      error:
+        type: boolean
+      msg:
+        type: string
+      type:
+        type: integer
+    type: object
+  users.responseUserValid:
+    properties:
+      code:
+        type: integer
+      data:
+        type: string
+      error:
+        type: boolean
+      msg:
+        type: string
+      type:
+        type: integer
+    type: object
+  users.responseValidateUser:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/models.Wallet'
+      error:
+        type: boolean
+      msg:
+        type: string
+      type:
+        type: integer
+    type: object
+host: http://127.0.0.1:50050
+info:
+  contact:
+    email: info@bjungle.net
+    name: API Support
+  description: Documentation Smart Contract
+  license:
+    name: Software Owner
+    url: https://www.bjungle.net/terms/licenses
+  termsOfService: https://www.bjungle.net/terms/
+  title: OnlyOne Smart Contract
+  version: "1.0"
+paths:
+  /api/v1/categories/all:
+    get:
+      consumes:
+      - application/json
+      description: Get all categories of credentials
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/categories.responseAllCategories'
+      summary: Get all categories of credentials
+      tags:
+      - Categories
+  /api/v1/categories/create-style:
+    post:
+      consumes:
+      - application/json
+      description: create credential's style of category
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: request of create credential's style
+        in: body
+        name: CreateStyleOfCredential
+        required: true
+        schema:
+          $ref: '#/definitions/categories.requestCreateStyle'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/categories.resAny'
+      summary: create credential's style of category
+      tags:
+      - Categories
+  /api/v1/credentials/all/{block_id}/{limit}/{offset}:
+    get:
+      consumes:
+      - application/json
+      description: Get All Credentials ny block id
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Block ID
+        in: path
+        name: block_id
+        required: true
+        type: integer
+      - description: Limit of pagination
+        in: path
+        name: limit
+        required: true
+        type: integer
+      - description: Salt of pagination
+        in: path
+        name: offset
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/credentials.responseAllCredentials'
+      summary: Get all Credentials by block id
+      tags:
+      - Credentials
+  /api/v1/credentials/create:
+    post:
+      consumes:
+      - application/json
+      description: Create credential
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Request create transaction
+        in: body
+        name: createCredential
+        required: true
+        schema:
+          $ref: '#/definitions/credentials.requestCreateTransaction'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/credentials.responseCreateCredential'
+      summary: Create credential
+      tags:
+      - Credentials
+  /api/v1/credentials/files/{trx}:
+    get:
+      consumes:
+      - application/json
+      description: Get transaction files
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: transaction id
+        in: path
+        name: trx
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/credentials.ResGetFiles'
+      summary: Get transaction files
+      tags:
+      - Credentials
+  /api/v1/credentials/jwt:
+    post:
+      consumes:
+      - application/json
+      description: Get JWTTransaction By ID
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Generate JWT Request
+        in: body
+        name: getJWTTransaction
+        required: true
+        schema:
+          $ref: '#/definitions/credentials.JwtTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/credentials.JwtTransactionResponse'
+      summary: Get JWTTransaction By ID
+      tags:
+      - Credentials
+  /api/v1/login:
+    post:
+      consumes:
+      - application/json
+      description: Login OnlyOne Smart Contract
+      parameters:
+      - description: Request login
+        in: body
+        name: Login
+        required: true
+        schema:
+          $ref: '#/definitions/login.RequestLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/login.ResponseLogin'
+      summary: Login OnlyOne Smart Contract
+      tags:
+      - Authentication
+  /api/v1/user/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get user by ID
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: user ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/users.responseUser'
+      summary: get user by ID
+      tags:
+      - User
+  /api/v1/user/create:
+    post:
+      consumes:
+      - application/json
+      description: Create User
+      parameters:
+      - description: Request create user
+        in: body
+        name: createUser
+        required: true
+        schema:
+          $ref: '#/definitions/users.requestCreateUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users.responseCreateUser'
+      summary: Create User of OnlyOne - BLion
+      tags:
+      - User
+  /api/v1/user/picture-profile:
+    get:
+      consumes:
+      - application/json
+      description: get profile picture of user
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users.responseUpdateUser'
+      summary: get user by identity number
+      tags:
+      - User
+  /api/v1/user/update-password:
+    post:
+      consumes:
+      - application/json
+      description: change password of user
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: request of update password
+        in: body
+        name: changePassword
+        required: true
+        schema:
+          $ref: '#/definitions/users.requestUpdatePassword'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users.responseUpdateUser'
+      summary: change password of user
+      tags:
+      - User
+  /api/v1/user/validate-email/{email}:
+    get:
+      consumes:
+      - application/json
+      description: validate user by email
+      parameters:
+      - description: email of user
+        in: path
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users.responseUserValid'
+      summary: validate user by email
+      tags:
+      - User
+  /api/v1/user/validate-identity:
+    post:
+      consumes:
+      - application/json
+      description: validity user identity and create wallet
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: request of validate user identity
+        in: body
+        name: validateIdentity
+        required: true
+        schema:
+          $ref: '#/definitions/users.requestValidateIdentity'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users.responseValidateUser'
+      summary: validity user identity and create wallet
+      tags:
+      - User
+  /api/v1/user/validate-identity-number/{inumber}:
+    get:
+      consumes:
+      - application/json
+      description: get user by identity number
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: user identity number
+        in: path
+        name: inumber
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users.responseUser'
+      summary: get user by identity number
+      tags:
+      - User
+  /api/v1/user/validate-nickname/{nickname}:
+    get:
+      consumes:
+      - application/json
+      description: validate user by nickname
+      parameters:
+      - description: username (nickname) of user
+        in: path
+        name: nickname
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users.responseUserValid'
+      summary: validate user by nickname
+      tags:
+      - User
+  /api/v1/user/wallets:
+    get:
+      consumes:
+      - application/json
+      description: Get Wallet by user id
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users.responseGetWallets'
+      summary: OnlyOne Smart Contract
+      tags:
+      - User
+swagger: "2.0"
+tags:
+- description: Credentials of OnlyOne Clients
+  name: Credentials
+- description: Methods of user
+  name: User
+- description: Methods of Authentication
+  name: Authentication
+- description: Categories of credentials
+  name: Categories

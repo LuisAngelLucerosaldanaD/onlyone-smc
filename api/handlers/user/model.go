@@ -75,6 +75,7 @@ type requestValidateIdentity struct {
 	IdentityNumber string `json:"identity_number"`
 	IdentityEncode string `json:"identity_encode"`
 	ConfirmEncode  string `json:"confirm_encode"`
+	Country        string `json:"country"`
 }
 
 type responseUpdateUser struct {
