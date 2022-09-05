@@ -3,6 +3,7 @@ package users
 import (
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -20,6 +21,7 @@ import (
 	"onlyone_smc/internal/logger"
 	"onlyone_smc/internal/models"
 	"onlyone_smc/internal/msg"
+	"onlyone_smc/internal/ws"
 	"onlyone_smc/pkg/auth"
 	"strconv"
 	"strings"
@@ -238,7 +240,7 @@ func (h *handlerUser) validateNickname(c *fiber.Ctx) error {
 // @Produce  json
 // @Param Authorization header string true "Authorization" default(Bearer <Add access token here>)
 // @Param id path string true "user ID"
-// @Success 202 {object} responseUser
+// @Success 200 {object} responseUser
 // @Router /api/v1/user/{id} [get]
 func (h *handlerUser) getUserById(c *fiber.Ctx) error {
 	res := responseUser{Error: true}
@@ -334,6 +336,7 @@ func (h *handlerUser) getUserById(c *fiber.Ctx) error {
 // @Router /api/v1/user/validate-identity [post]
 func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 	res := responseValidateUser{Error: true}
+	resPerson := responsePerson{}
 	req := requestValidateIdentity{}
 	e := env.NewConfiguration()
 	u, err := helpers.GetUserContextV2(c)
@@ -392,20 +395,31 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 
 	if userFields.Names == "" || userFields.Surname == "" || userFields.IdentityNumber == "" {
 		if req.Country == "CO" && userFields.IdentityNumber != "" {
-			person, code, err := srvAuth.SrvPersons.GetPersonByIdentityNumber(userFields.IdentityNumber)
-			if err != nil {
+			resWs, code, err := ws.ConsumeWS(nil, "", "GET", token)
+			if err != nil || code != 200 {
 				logger.Error.Printf("No se pudo obtener la persona por el número de identificación: %v", err)
 				res.Code, res.Type, res.Msg = code, 1, "No se pudo obtener la persona por el número de identificación"
 				return c.Status(http.StatusAccepted).JSON(res)
 			}
-			if person == nil {
-				logger.Error.Printf("No se pudo obtener los datos del usuario, intente subir una foto del documento de identidad con mayor resolución")
-				res.Code, res.Type, res.Msg = 22, 1, "No se pudo obtener los datos del usuario, intente subir una foto del documento de identidad con mayor resolución"
+
+			err = json.Unmarshal(resWs, &resPerson)
+			if err != nil {
+				logger.Error.Printf("No se pudo parsear la respuesta: %v", err)
+				res.Code, res.Type, res.Msg = 22, 1, "Error al obtener los datos de la persona"
 				return c.Status(http.StatusAccepted).JSON(res)
 			}
-			userFields.Names = strings.TrimSpace(person.NombreUno + person.NombreDos)
-			userFields.Surname = strings.TrimSpace(person.ApellidoUno)
-			userFields.SecondSurname = strings.TrimSpace(person.ApellidoDos)
+
+			if resPerson.Error {
+				logger.Error.Printf(resPerson.Msg)
+				res.Code, res.Type, res.Msg = resPerson.Code, 1, resPerson.Msg
+				return c.Status(http.StatusAccepted).JSON(res)
+			}
+
+			person := resPerson.Data
+
+			userFields.Names = strings.TrimSpace(person.FirstName + person.SecondName)
+			userFields.Surname = strings.TrimSpace(person.Surname)
+			userFields.SecondSurname = strings.TrimSpace(person.SecondSurname)
 		} else {
 			logger.Error.Printf("couldn't get user fields values: %v", err)
 			res.Code, res.Type, res.Msg = 50, 1, "No se pudo obtener los datos del usuario, intente subir una foto del documento de identidad con mayor resolución"
@@ -450,7 +464,7 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 
 	if resUser.Error {
 		logger.Error.Printf(resUser.Msg)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(int(resUser.Code), h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
@@ -474,7 +488,7 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 
 	if resUserWallet.Error {
 		logger.Error.Printf(resUserWallet.Msg)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(int(resUserWallet.Code), h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
@@ -505,38 +519,38 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 	})
 	if err != nil {
 		logger.Error.Printf("couldn't update user by id: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if resUpdateUser == nil {
 		logger.Error.Printf("couldn't update user by id: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(5, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if resUpdateUser.Error {
 		logger.Error.Printf(resUpdateUser.Msg)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(int(resUpdateUser.Code), h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	resWallet, err := clientWallet.GetWalletByIdentityNumber(ctx, &wallet_proto.RqGetByIdentityNumber{IdentityNumber: req.IdentityNumber})
 	if err != nil {
 		logger.Error.Printf("couldn't get wallet by identity number: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if resWallet == nil {
 		logger.Error.Printf("couldn't get wallet by identity number")
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if resWallet.Error {
 		logger.Error.Printf(resWallet.Msg)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(int(resWallet.Code), h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
@@ -667,6 +681,7 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 		ID:       wallet.Id,
 		Mnemonic: wallet.Mnemonic,
 	}
+
 	res.Code, res.Type, res.Msg = msg.GetByCode(29, h.DB, h.TxID)
 	res.Error = false
 	return c.Status(http.StatusOK).JSON(res)
