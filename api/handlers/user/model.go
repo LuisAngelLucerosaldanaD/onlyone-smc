@@ -72,10 +72,11 @@ type responseValidateIdentity struct {
 }
 
 type requestValidateIdentity struct {
-	IdentityNumber string `json:"identity_number"`
-	IdentityEncode string `json:"identity_encode"`
-	ConfirmEncode  string `json:"confirm_encode"`
-	Country        string `json:"country"`
+	IdentityNumber   string `json:"identity_number"`
+	DocumentFrontImg string `json:"document_front_img"`
+	DocumentBackImg  string `json:"document_back_img"`
+	SelfieImg        string `json:"selfie_img"`
+	Country          string `json:"country"`
 }
 
 type responseUpdateUser struct {

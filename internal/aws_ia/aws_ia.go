@@ -138,7 +138,7 @@ func GetUserFields(img []byte) (*User, error) {
 					break
 				}
 				if CedulaRgx.MatchString(*block.Text) {
-					user.IdentityNumber = strings.ReplaceAll(*block.Text, ".", "")
+					user.IdentityNumber = strings.ReplaceAll(strings.ReplaceAll(*block.Text, ".", ""), ",", "")
 					break
 				}
 			}

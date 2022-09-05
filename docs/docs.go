@@ -1231,16 +1231,19 @@ const docTemplate = `{
         "users.requestValidateIdentity": {
             "type": "object",
             "properties": {
-                "confirm_encode": {
-                    "type": "string"
-                },
                 "country": {
                     "type": "string"
                 },
-                "identity_encode": {
+                "document_back_img": {
+                    "type": "string"
+                },
+                "document_front_img": {
                     "type": "string"
                 },
                 "identity_number": {
+                    "type": "string"
+                },
+                "selfie_img": {
                     "type": "string"
                 }
             }

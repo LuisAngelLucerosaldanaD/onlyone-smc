@@ -22,6 +22,7 @@ import (
 	"onlyone_smc/internal/msg"
 	"onlyone_smc/pkg/auth"
 	"strconv"
+	"strings"
 )
 
 type handlerUser struct {
@@ -366,21 +367,21 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 
 	ctx := grpcMetadata.AppendToOutgoingContext(context.Background(), "authorization", token)
 
-	identityBytes, err := base64.StdEncoding.DecodeString(req.IdentityEncode)
+	identityBytes, err := base64.StdEncoding.DecodeString(req.DocumentFrontImg)
 	if err != nil {
 		logger.Error.Printf("couldn't decode identity: %v", err)
 		res.Code, res.Type, res.Msg = msg.GetByCode(1, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
-	confirmBytes, err := base64.StdEncoding.DecodeString(req.ConfirmEncode)
+	confirmBytes, err := base64.StdEncoding.DecodeString(req.SelfieImg)
 	if err != nil {
 		logger.Error.Printf("couldn't decode identity: %v", err)
 		res.Code, res.Type, res.Msg = msg.GetByCode(1, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
-	aws_ia.GetUserValuesID(identityBytes)
+	// aws_ia.GetUserValuesID(identityBytes)
 
 	userFields, err := aws_ia.GetUserFields(identityBytes)
 	if err != nil {
@@ -389,10 +390,27 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
-	if userFields.Names == "" || userFields.SecondSurname == "" || userFields.Surname == "" || userFields.IdentityNumber == "" {
-		logger.Error.Printf("couldn't get user fields values: %v", err)
-		res.Code, res.Type, res.Msg = 50, 1, "No se pudo obtener los datos del usuario, intente subir una foto del documento de identidad con mayor resolución"
-		return c.Status(http.StatusAccepted).JSON(res)
+	if userFields.Names == "" || userFields.Surname == "" || userFields.IdentityNumber == "" {
+		if req.Country == "CO" && userFields.IdentityNumber != "" {
+			person, code, err := srvAuth.SrvPersons.GetPersonByIdentityNumber(userFields.IdentityNumber)
+			if err != nil {
+				logger.Error.Printf("No se pudo obtener la persona por el número de identificación: %v", err)
+				res.Code, res.Type, res.Msg = code, 1, "No se pudo obtener la persona por el número de identificación"
+				return c.Status(http.StatusAccepted).JSON(res)
+			}
+			if person == nil {
+				logger.Error.Printf("No se pudo obtener los datos del usuario, intente subir una foto del documento de identidad con mayor resolución")
+				res.Code, res.Type, res.Msg = 22, 1, "No se pudo obtener los datos del usuario, intente subir una foto del documento de identidad con mayor resolución"
+				return c.Status(http.StatusAccepted).JSON(res)
+			}
+			userFields.Names = strings.TrimSpace(person.NombreUno + person.NombreDos)
+			userFields.Surname = strings.TrimSpace(person.ApellidoUno)
+			userFields.SecondSurname = strings.TrimSpace(person.ApellidoDos)
+		} else {
+			logger.Error.Printf("couldn't get user fields values: %v", err)
+			res.Code, res.Type, res.Msg = 50, 1, "No se pudo obtener los datos del usuario, intente subir una foto del documento de identidad con mayor resolución"
+			return c.Status(http.StatusAccepted).JSON(res)
+		}
 	}
 
 	resp, err := aws_ia.CompareFaces(identityBytes, confirmBytes)
@@ -410,7 +428,7 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 
 	idNumber, _ := strconv.ParseInt(req.IdentityNumber, 10, 64)
 
-	f, err := srvAuth.SrvFiles.UploadFile(idNumber, req.IdentityNumber+".jpg", req.ConfirmEncode)
+	f, err := srvAuth.SrvFiles.UploadFile(idNumber, req.IdentityNumber+".jpg", req.SelfieImg)
 	if err != nil {
 		logger.Error.Printf("couldn't upload file s3: %v", err)
 		res.Code, res.Type, res.Msg = msg.GetByCode(3, h.DB, h.TxID)
