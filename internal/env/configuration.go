@@ -45,6 +45,7 @@ type App struct {
 	KeyGenesis           string  `json:"key_genesis"`
 	UserLogin            string  `json:"user_login"`
 	UserPassword         string  `json:"user_password"`
+	UrlPersons           string  `json:"url_persons"`
 }
 
 type Template struct {

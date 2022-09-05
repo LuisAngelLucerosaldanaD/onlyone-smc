@@ -395,7 +395,7 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 
 	if userFields.Names == "" || userFields.Surname == "" || userFields.IdentityNumber == "" {
 		if req.Country == "CO" && userFields.IdentityNumber != "" {
-			resWs, code, err := ws.ConsumeWS(nil, "", "GET", token)
+			resWs, code, err := ws.ConsumeWS(nil, e.App.UrlPersons+userFields.IdentityNumber, "GET", token)
 			if err != nil || code != 200 {
 				logger.Error.Printf("No se pudo obtener la persona por el número de identificación: %v", err)
 				res.Code, res.Type, res.Msg = code, 1, "No se pudo obtener la persona por el número de identificación"
