@@ -72,7 +72,6 @@ type responseValidateIdentity struct {
 }
 
 type requestValidateIdentity struct {
-	IdentityNumber   string `json:"identity_number"`
 	DocumentFrontImg string `json:"document_front_img"`
 	DocumentBackImg  string `json:"document_back_img"`
 	SelfieImg        string `json:"selfie_img"`

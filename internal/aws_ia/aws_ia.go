@@ -295,7 +295,5 @@ func GetUserValuesID(img []byte) (*User, error) {
 		}
 	}
 
-	fmt.Println(result)
-
 	return user, nil
 }

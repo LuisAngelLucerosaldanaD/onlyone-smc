@@ -620,8 +620,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "202": {
-                        "description": "Accepted",
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/users.responseUser"
                         }
@@ -1238,9 +1238,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "document_front_img": {
-                    "type": "string"
-                },
-                "identity_number": {
                     "type": "string"
                 },
                 "selfie_img": {

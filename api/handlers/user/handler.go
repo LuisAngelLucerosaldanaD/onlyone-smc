@@ -384,13 +384,22 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
-	// aws_ia.GetUserValuesID(identityBytes)
+	var userFields *aws_ia.User
 
-	userFields, err := aws_ia.GetUserFields(identityBytes)
-	if err != nil {
-		logger.Error.Printf("couldn't get user fields values: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
-		return c.Status(http.StatusAccepted).JSON(res)
+	if req.Country == "PE" {
+		userFields, err = aws_ia.GetUserValuesID(identityBytes)
+		if err != nil {
+			logger.Error.Printf("couldn't get user fields values: %v", err)
+			res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+			return c.Status(http.StatusAccepted).JSON(res)
+		}
+	} else {
+		userFields, err = aws_ia.GetUserFields(identityBytes)
+		if err != nil {
+			logger.Error.Printf("couldn't get user fields values: %v", err)
+			res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+			return c.Status(http.StatusAccepted).JSON(res)
+		}
 	}
 
 	if userFields.Names == "" || userFields.Surname == "" || userFields.IdentityNumber == "" {
@@ -440,9 +449,9 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
-	idNumber, _ := strconv.ParseInt(req.IdentityNumber, 10, 64)
+	idNumber, _ := strconv.ParseInt(userFields.IdentityNumber, 10, 64)
 
-	f, err := srvAuth.SrvFiles.UploadFile(idNumber, req.IdentityNumber+".jpg", req.SelfieImg)
+	f, err := srvAuth.SrvFiles.UploadFile(idNumber, userFields.IdentityNumber+".jpg", req.SelfieImg)
 	if err != nil {
 		logger.Error.Printf("couldn't upload file s3: %v", err)
 		res.Code, res.Type, res.Msg = msg.GetByCode(3, h.DB, h.TxID)
@@ -471,7 +480,7 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 	user := resUser.Data
 
 	resUserWallet, err := clientUser.GetUserWalletByIdentityNumber(ctx, &users_proto.RqGetUserWalletByIdentityNumber{
-		IdentityNumber: req.IdentityNumber,
+		IdentityNumber: userFields.IdentityNumber,
 		UserId:         user.Id,
 	})
 	if err != nil {
@@ -535,7 +544,7 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
-	resWallet, err := clientWallet.GetWalletByIdentityNumber(ctx, &wallet_proto.RqGetByIdentityNumber{IdentityNumber: req.IdentityNumber})
+	resWallet, err := clientWallet.GetWalletByIdentityNumber(ctx, &wallet_proto.RqGetByIdentityNumber{IdentityNumber: userFields.IdentityNumber})
 	if err != nil {
 		logger.Error.Printf("couldn't get wallet by identity number: %v", err)
 		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
@@ -559,7 +568,7 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 	var walletID string
 
 	if wallet == nil {
-		newWallet, err := clientWallet.CreateWalletBySystem(ctx, &wallet_proto.RqCreateWalletBySystem{IdentityNumber: req.IdentityNumber})
+		newWallet, err := clientWallet.CreateWalletBySystem(ctx, &wallet_proto.RqCreateWalletBySystem{IdentityNumber: userFields.IdentityNumber})
 		if err != nil {
 			logger.Error.Printf("couldn't create wallet: %v", err)
 			res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
