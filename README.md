@@ -62,5 +62,5 @@ Dichos costos o aproximados se pueden obtener de la siguiente en el simulador de
 Este servicio está construido para correr en la BLion Virtual Smart de BLion Blockchain por ende tiene que pasar por regulaciones y aprobaciones para poderse instalar y ejecutar 
 en la red de BLion. Para Mayor información sobre los `Smart Contract` en BLion consulté la siguiente página [BLion](https://www.bjungle.net).
 
-
+go install github.com/swaggo/swag/cmd/swag@latest
 

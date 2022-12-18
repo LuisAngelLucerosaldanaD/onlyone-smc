@@ -17,7 +17,9 @@ import (
 )
 
 func routes(db *sqlx.DB, loggerHttp bool, allowedOrigins string) *fiber.App {
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		BodyLimit: 20 * 1024 * 1024,
+	})
 
 	prometheus := fiberprometheus.New("OnlyOne Smart Contract")
 	prometheus.RegisterAt(app, "/metrics")

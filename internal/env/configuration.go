@@ -23,6 +23,7 @@ type configuration struct {
 	Aws                 Aws                 `json:"aws"`
 	AuthService         AuthService         `json:"auth_service"`
 	TransactionsService TransactionsService `json:"transactions_service"`
+	Ocr                 Ocr                 `json:"ocr"`
 }
 
 type App struct {
@@ -106,6 +107,10 @@ type AuthService struct {
 
 type TransactionsService struct {
 	Port string `json:"port"`
+}
+
+type Ocr struct {
+	Url string `json:"url"`
 }
 
 func NewConfiguration() *configuration {

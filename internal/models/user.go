@@ -27,8 +27,6 @@ type User struct {
 	IdUser             string    `json:"id_user,omitempty" db:"id_user"`
 	IdRole             int       `json:"id_role" db:"id_role" valid:"required"`
 	FullPathPhoto      string    `json:"full_path_photo,omitempty" db:"full_path_photo"`
-	RsaPrivate         string    `json:"rsa_private,omitempty" db:"rsa_private"  valid:"required"`
-	RsaPublic          string    `json:"rsa_public,omitempty" db:"rsa_public" valid:"required"`
 	RecoveryAccountAt  time.Time `json:"recovery_account_at,omitempty" db:"recovery_account_at"`
 	RealIP             string    `json:"real_ip,omitempty"`
 	DeletedAt          time.Time `json:"deleted_at,omitempty" db:"deleted_at"`
@@ -37,17 +35,14 @@ type User struct {
 }
 
 type Wallet struct {
-	ID               string    `json:"id" db:"id" valid:"required,uuid"`
-	Mnemonic         string    `json:"mnemonic" db:"mnemonic" valid:"required"`
-	RsaPublic        string    `json:"rsa_public" db:"rsa_public" valid:"required"`
-	RsaPrivate       string    `json:"rsa_private" db:"rsa_private" valid:"required"`
-	RsaPublicDevice  string    `json:"rsa_public_device" db:"rsa_public_device" valid:"required"`
-	RsaPrivateDevice string    `json:"rsa_private_device" db:"rsa_private_device" valid:"required"`
-	IpDevice         string    `json:"ip_device" db:"ip_device" valid:"required"`
-	StatusId         int       `json:"status_id" db:"status_id" valid:"required"`
-	IdentityNumber   string    `json:"identity_number" db:"identity_number" valid:"required"`
-	CreatedAt        time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt        time.Time `json:"updated_at" db:"updated_at"`
+	ID             string    `json:"id" db:"id" valid:"required,uuid"`
+	Mnemonic       string    `json:"mnemonic" db:"mnemonic" valid:"required"`
+	RsaPublic      string    `json:"rsa_public" db:"rsa_public" valid:"required"`
+	IpDevice       string    `json:"ip_device" db:"ip_device" valid:"required"`
+	StatusId       int       `json:"status_id" db:"status_id" valid:"required"`
+	IdentityNumber string    `json:"identity_number" db:"identity_number" valid:"required"`
+	CreatedAt      time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at" db:"updated_at"`
 }
 
 type UserTemp struct {

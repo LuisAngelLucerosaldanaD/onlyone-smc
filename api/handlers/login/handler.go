@@ -42,7 +42,7 @@ func (h *handlerLogin) Login(c *fiber.Ctx) error {
 	connAuth, err := grpc.Dial(e.AuthService.Port, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		logger.Error.Printf("error conectando con el servicio auth de blockchain: %s", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 	defer connAuth.Close()
@@ -56,19 +56,19 @@ func (h *handlerLogin) Login(c *fiber.Ctx) error {
 	})
 	if err != nil {
 		logger.Error.Printf("No se pudo obtener el token de autenticacion: %s", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if resLogin == nil {
 		logger.Error.Printf("No se pudo obtener el token de autenticacion")
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(10, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if resLogin.Error {
 		logger.Error.Printf(resLogin.Msg)
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(10, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 

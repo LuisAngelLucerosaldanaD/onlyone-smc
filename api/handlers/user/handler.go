@@ -21,6 +21,7 @@ import (
 	"onlyone_smc/internal/logger"
 	"onlyone_smc/internal/models"
 	"onlyone_smc/internal/msg"
+	"onlyone_smc/internal/ocr"
 	"onlyone_smc/internal/ws"
 	"onlyone_smc/pkg/auth"
 	"strconv"
@@ -77,19 +78,19 @@ func (h *handlerUser) createUser(c *fiber.Ctx) error {
 	})
 	if err != nil {
 		logger.Error.Printf("No se pudo obtener el token de autenticacion: %s", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(3, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if resLogin == nil {
 		logger.Error.Printf("No se pudo obtener el token de autenticacion")
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(3, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if resLogin.Error {
 		logger.Error.Printf(resLogin.Msg)
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(3, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
@@ -110,19 +111,19 @@ func (h *handlerUser) createUser(c *fiber.Ctx) error {
 	})
 	if err != nil {
 		logger.Error.Printf("No se pudo crear el usuario, error: %s", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(3, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if resCreateUser == nil {
 		logger.Error.Printf("No se pudo crear el usuario")
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(3, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if resCreateUser.Error {
 		logger.Error.Printf(resCreateUser.Msg)
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(3, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
@@ -149,7 +150,7 @@ func (h *handlerUser) validateEmail(c *fiber.Ctx) error {
 	connAuth, err := grpc.Dial(e.AuthService.Port, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		logger.Error.Printf("error conectando con el servicio auth de blockchain: %s", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 	defer connAuth.Close()
@@ -199,7 +200,7 @@ func (h *handlerUser) validateNickname(c *fiber.Ctx) error {
 	connAuth, err := grpc.Dial(e.AuthService.Port, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		logger.Error.Printf("error conectando con el servicio auth de blockchain: %s", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 	defer connAuth.Close()
@@ -209,13 +210,13 @@ func (h *handlerUser) validateNickname(c *fiber.Ctx) error {
 	resValidate, err := clientUser.ValidateNickname(context.Background(), &users_proto.ValidateNicknameRequest{Nickname: nickname})
 	if err != nil {
 		logger.Error.Printf("couldn't get user by nickname: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if resValidate == nil {
 		logger.Error.Printf("couldn't get user by nickname: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
@@ -251,34 +252,33 @@ func (h *handlerUser) getUserById(c *fiber.Ctx) error {
 	connAuth, err := grpc.Dial(e.AuthService.Port, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		logger.Error.Printf("error conectando con el servicio auth de blockchain: %s", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 	defer connAuth.Close()
 
 	clientUser := users_proto.NewAuthServicesUsersClient(connAuth)
 
-	bearer := c.Get("Authorization")
-	tkn := bearer[7:]
+	tkn := c.Get("Authorization")[7:]
 
 	ctx := grpcMetadata.AppendToOutgoingContext(context.Background(), "authorization", tkn)
 
 	usr, err := clientUser.GetUserById(ctx, &users_proto.GetUserByIDRequest{Id: usrId})
 	if err != nil {
 		logger.Error.Printf("couldn't get User by ID: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if usr == nil {
 		logger.Error.Printf("couldn't get User by ID: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if usr.Error {
 		logger.Error.Printf(usr.Msg)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(int(usr.Code), h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
@@ -316,7 +316,6 @@ func (h *handlerUser) getUserById(c *fiber.Ctx) error {
 		FailedAttempts: int(user.FailedAttempts),
 		IdRole:         int(user.IdRole),
 		FullPathPhoto:  user.FullPathPhoto,
-		RsaPublic:      user.RsaPublic,
 		RealIP:         user.RealIp,
 	}
 	res.Code, res.Type, res.Msg = msg.GetByCode(29, h.DB, h.TxID)
@@ -384,17 +383,17 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
-	var userFields *aws_ia.User
+	var userFields *ocr.PersonInformation
 
 	if req.Country == "PE" {
-		userFields, err = aws_ia.GetUserValuesID(identityBytes)
+		userFields, err = ocr.GetDniInformation(e.Ocr.Url, "dni.png", identityBytes)
 		if err != nil {
 			logger.Error.Printf("couldn't get user fields values: %v", err)
 			res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
 			return c.Status(http.StatusAccepted).JSON(res)
 		}
 	} else {
-		userFields, err = aws_ia.GetUserFields(identityBytes)
+		userFields, err = ocr.GetCedulaInformation(e.Ocr.Url, "dni.png", identityBytes)
 		if err != nil {
 			logger.Error.Printf("couldn't get user fields values: %v", err)
 			res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
@@ -402,38 +401,81 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 		}
 	}
 
-	if userFields.Names == "" || userFields.Surname == "" || userFields.IdentityNumber == "" {
-		if req.Country == "CO" && userFields.IdentityNumber != "" {
-			resWs, code, err := ws.ConsumeWS(nil, e.App.UrlPersons+userFields.IdentityNumber, "GET", token)
-			if err != nil || code != 200 {
-				logger.Error.Printf("No se pudo obtener la persona por el número de identificación: %v", err)
-				res.Code, res.Type, res.Msg = code, 1, "No se pudo obtener la persona por el número de identificación"
-				return c.Status(http.StatusAccepted).JSON(res)
-			}
+	if req.Country == "PE" && (userFields.Names == "" || userFields.Surnames == "" || userFields.IdentityNumber == "") {
+		logger.Error.Printf("couldn't get user fields values: %v", err)
+		res.Code, res.Type, res.Msg = 50, 1, "No se pudo obtener los datos del usuario, intente subir una foto del documento de identidad con mayor resolución"
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
 
-			err = json.Unmarshal(resWs, &resPerson)
-			if err != nil {
-				logger.Error.Printf("No se pudo parsear la respuesta: %v", err)
-				res.Code, res.Type, res.Msg = 22, 1, "Error al obtener los datos de la persona"
-				return c.Status(http.StatusAccepted).JSON(res)
-			}
+	if req.Country == "CO" && userFields.IdentityNumber != "" {
 
-			if resPerson.Error {
-				logger.Error.Printf(resPerson.Msg)
-				res.Code, res.Type, res.Msg = resPerson.Code, 1, resPerson.Msg
-				return c.Status(http.StatusAccepted).JSON(res)
-			}
-
-			person := resPerson.Data
-
-			userFields.Names = strings.TrimSpace(person.FirstName + person.SecondName)
-			userFields.Surname = strings.TrimSpace(person.Surname)
-			userFields.SecondSurname = strings.TrimSpace(person.SecondSurname)
-		} else {
-			logger.Error.Printf("couldn't get user fields values: %v", err)
-			res.Code, res.Type, res.Msg = 50, 1, "No se pudo obtener los datos del usuario, intente subir una foto del documento de identidad con mayor resolución"
+		resWs, code, err := ws.ConsumeWS(nil, e.App.UrlPersons+userFields.IdentityNumber, "GET", token)
+		if err != nil || code != 200 {
+			logger.Error.Printf("No se pudo obtener la persona por el número de identificación: %v", err)
+			res.Code, res.Type, res.Msg = code, 1, "No se pudo obtener la persona por el número de identificación"
 			return c.Status(http.StatusAccepted).JSON(res)
 		}
+
+		err = json.Unmarshal(resWs, &resPerson)
+		if err != nil {
+			logger.Error.Printf("No se pudo parsear la respuesta: %v", err)
+			res.Code, res.Type, res.Msg = 22, 1, "Error al obtener los datos de la persona"
+			return c.Status(http.StatusAccepted).JSON(res)
+		}
+
+		if resPerson.Error {
+			logger.Error.Printf(resPerson.Msg)
+			res.Code, res.Type, res.Msg = resPerson.Code, 1, resPerson.Msg
+			return c.Status(http.StatusAccepted).JSON(res)
+		}
+
+		person := resPerson.Data
+
+		userFields.Names = strings.TrimSpace(person.FirstName + person.SecondName)
+		userFields.Surnames = strings.TrimSpace(person.Surname + " " + person.SecondSurname)
+
+	} else {
+		logger.Error.Printf("couldn't get user fields values: %v", err)
+		res.Code, res.Type, res.Msg = 50, 1, "No se pudo obtener los datos del usuario, intente subir una foto del documento de identidad con mayor resolución"
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	resUser, err := clientUser.GetUserById(ctx, &users_proto.GetUserByIDRequest{Id: u.ID})
+	if err != nil || resUser == nil {
+		logger.Error.Printf("couldn't get user by id: %v", err)
+		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	if resUser.Error {
+		logger.Error.Printf(resUser.Msg)
+		res.Code, res.Type, res.Msg = msg.GetByCode(int(resUser.Code), h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	user := resUser.Data
+
+	resUserWallet, err := clientUser.GetUserWalletByIdentityNumber(ctx, &users_proto.RqGetUserWalletByIdentityNumber{
+		IdentityNumber: userFields.IdentityNumber,
+		UserId:         user.Id,
+	})
+	if err != nil || resUserWallet == nil {
+		logger.Error.Printf("couldn't get user wallet by user id and identity number: %v", err)
+		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	if resUserWallet.Error {
+		logger.Error.Printf(resUserWallet.Msg)
+		res.Code, res.Type, res.Msg = msg.GetByCode(int(resUserWallet.Code), h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	if resUserWallet.Data != nil {
+		res.Data = nil
+		res.Code, res.Type, res.Msg = 22, 1, "El usuario ya ha valido su identidad"
+		res.Error = false
+		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	resp, err := aws_ia.CompareFaces(identityBytes, confirmBytes)
@@ -458,83 +500,15 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
-	resUser, err := clientUser.GetUserById(ctx, &users_proto.GetUserByIDRequest{Id: u.ID})
-	if err != nil {
-		logger.Error.Printf("couldn't get user by id: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
-		return c.Status(http.StatusAccepted).JSON(res)
-	}
-
-	if resUser == nil {
-		logger.Error.Printf("couldn't get user by id: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
-		return c.Status(http.StatusAccepted).JSON(res)
-	}
-
-	if resUser.Error {
-		logger.Error.Printf(resUser.Msg)
-		res.Code, res.Type, res.Msg = msg.GetByCode(int(resUser.Code), h.DB, h.TxID)
-		return c.Status(http.StatusAccepted).JSON(res)
-	}
-
-	user := resUser.Data
-
-	resUserWallet, err := clientUser.GetUserWalletByIdentityNumber(ctx, &users_proto.RqGetUserWalletByIdentityNumber{
-		IdentityNumber: userFields.IdentityNumber,
-		UserId:         user.Id,
+	resUpdateUser, err := clientUser.UpdateUserIdentity(ctx, &users_proto.RqUpdateUserIdentity{
+		Id:       user.Id,
+		Name:     userFields.Names,
+		Lastname: userFields.Surnames,
+		IdRole:   21,
 	})
-	if err != nil {
-		logger.Error.Printf("couldn't get user wallet by user id and identity number: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
-		return c.Status(http.StatusAccepted).JSON(res)
-	}
-
-	if resUserWallet == nil {
-		logger.Error.Printf("couldn't get user wallet by user id and identity number: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
-		return c.Status(http.StatusAccepted).JSON(res)
-	}
-
-	if resUserWallet.Error {
-		logger.Error.Printf(resUserWallet.Msg)
-		res.Code, res.Type, res.Msg = msg.GetByCode(int(resUserWallet.Code), h.DB, h.TxID)
-		return c.Status(http.StatusAccepted).JSON(res)
-	}
-
-	if resUserWallet.Data != nil {
-		res.Data = nil
-		res.Code, res.Type, res.Msg = 22, 1, "El usuario ya ha valido su identidad"
-		res.Error = false
-		return c.Status(http.StatusAccepted).JSON(res)
-	}
-
-	resUpdateUser, err := clientUser.UpdateUser(ctx, &users_proto.RqUpdateUser{
-		Id:            user.Id,
-		Nickname:      user.Nickname,
-		Email:         user.Email,
-		Password:      user.Password,
-		Name:          userFields.Names,
-		Lastname:      userFields.Surname + " " + userFields.SecondSurname,
-		IdType:        user.IdType,
-		IdNumber:      userFields.IdentityNumber,
-		Cellphone:     user.Cellphone,
-		BirthDate:     user.BirthDate,
-		VerifiedCode:  user.VerifiedCode,
-		VerifiedAt:    user.VerifiedAt,
-		FullPathPhoto: user.FullPathPhoto,
-		RsaPrivate:    user.RsaPrivate,
-		RsaPublic:     user.RsaPublic,
-		IdRole:        21,
-	})
-	if err != nil {
+	if err != nil || resUpdateUser == nil {
 		logger.Error.Printf("couldn't update user by id: %v", err)
 		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
-		return c.Status(http.StatusAccepted).JSON(res)
-	}
-
-	if resUpdateUser == nil {
-		logger.Error.Printf("couldn't update user by id: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(5, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
@@ -545,14 +519,8 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 	}
 
 	resWallet, err := clientWallet.GetWalletByIdentityNumber(ctx, &wallet_proto.RqGetByIdentityNumber{IdentityNumber: userFields.IdentityNumber})
-	if err != nil {
+	if err != nil || resWallet == nil {
 		logger.Error.Printf("couldn't get wallet by identity number: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
-		return c.Status(http.StatusAccepted).JSON(res)
-	}
-
-	if resWallet == nil {
-		logger.Error.Printf("couldn't get wallet by identity number")
 		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
@@ -569,21 +537,15 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 
 	if wallet == nil {
 		newWallet, err := clientWallet.CreateWalletBySystem(ctx, &wallet_proto.RqCreateWalletBySystem{IdentityNumber: userFields.IdentityNumber})
-		if err != nil {
+		if err != nil || newWallet == nil {
 			logger.Error.Printf("couldn't create wallet: %v", err)
-			res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
-			return c.Status(http.StatusAccepted).JSON(res)
-		}
-
-		if newWallet == nil {
-			logger.Error.Printf("couldn't create wallet: %v", err)
-			res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+			res.Code, res.Type, res.Msg = msg.GetByCode(5, h.DB, h.TxID)
 			return c.Status(http.StatusAccepted).JSON(res)
 		}
 
 		if newWallet.Error {
 			logger.Error.Printf(newWallet.Msg)
-			res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+			res.Code, res.Type, res.Msg = msg.GetByCode(int(newWallet.Code), h.DB, h.TxID)
 			return c.Status(http.StatusAccepted).JSON(res)
 		}
 
@@ -600,51 +562,35 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 			Amount:   0,
 			IdUser:   u.ID,
 		})
-		if err != nil {
+		if err != nil || resCreateAccount == nil {
 			logger.Error.Printf("couldn't create account to wallet: %v", err)
-			res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
-			return c.Status(http.StatusAccepted).JSON(res)
-		}
-
-		if resCreateAccount == nil {
-			logger.Error.Printf("couldn't create account to wallet: %v", err)
-			res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+			res.Code, res.Type, res.Msg = msg.GetByCode(5, h.DB, h.TxID)
 			return c.Status(http.StatusAccepted).JSON(res)
 		}
 
 		if resCreateAccount.Error {
 			logger.Error.Printf(resCreateAccount.Msg)
-			res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+			res.Code, res.Type, res.Msg = msg.GetByCode(int(resCreateAccount.Code), h.DB, h.TxID)
 			return c.Status(http.StatusAccepted).JSON(res)
 		}
 
 	} else {
 		walletID = wallet.Id
 		resUpdateWallet, err := clientWallet.UpdateWallet(ctx, &wallet_proto.RqUpdateWallet{
-			Id:               wallet.Id,
-			RsaPublic:        wallet.RsaPublic,
-			RsaPrivate:       wallet.RsaPrivate,
-			RsaPublicDevice:  wallet.RsaPublicDevice,
-			RsaPrivateDevice: wallet.RsaPrivateDevice,
-			IpDevice:         wallet.IpDevice,
-			IdentityNumber:   wallet.IdentityNumber,
-			StatusId:         wallet.StatusId,
+			Id:             wallet.Id,
+			IpDevice:       wallet.IpDevice,
+			IdentityNumber: wallet.IdentityNumber,
+			StatusId:       wallet.StatusId,
 		})
-		if err != nil {
+		if err != nil || resUserWallet == nil {
 			logger.Error.Printf("couldn't update wallet: %v", err)
-			res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
-			return c.Status(http.StatusAccepted).JSON(res)
-		}
-
-		if resUserWallet == nil {
-			logger.Error.Printf("couldn't update wallet: %v", err)
-			res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+			res.Code, res.Type, res.Msg = msg.GetByCode(5, h.DB, h.TxID)
 			return c.Status(http.StatusAccepted).JSON(res)
 		}
 
 		if resUpdateWallet.Error {
 			logger.Error.Printf(resUpdateWallet.Msg)
-			res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+			res.Code, res.Type, res.Msg = msg.GetByCode(int(resUpdateWallet.Code), h.DB, h.TxID)
 			return c.Status(http.StatusAccepted).JSON(res)
 		}
 
@@ -658,21 +604,15 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 		UserId:   u.ID,
 		WalletId: walletID,
 	})
-	if err != nil {
+	if err != nil || resCreateUserWallet == nil {
 		logger.Error.Printf("couldn't create users wallet: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
-		return c.Status(http.StatusAccepted).JSON(res)
-	}
-
-	if resCreateUserWallet == nil {
-		logger.Error.Printf("couldn't create users wallet: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(5, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if resCreateUserWallet.Error {
 		logger.Error.Printf(resCreateUserWallet.Msg)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(5, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
@@ -721,13 +661,7 @@ func (h *handlerUser) getUserByIdentityNumber(c *fiber.Ctx) error {
 	clientUser := users_proto.NewAuthServicesUsersClient(connAuth)
 
 	resUsr, err := clientUser.ValidIdentityNumber(context.Background(), &users_proto.RequestGetByIdentityNumber{IdentityNumber: usrIdentityNumber})
-	if err != nil {
-		logger.Error.Printf("couldn't get User by identity number: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
-		return c.Status(http.StatusAccepted).JSON(res)
-	}
-
-	if resUsr == nil {
+	if err != nil || resUsr == nil {
 		logger.Error.Printf("couldn't get User by identity number: %v", err)
 		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
@@ -784,14 +718,8 @@ func (h *handlerUser) getUserPictureProfile(c *fiber.Ctx) error {
 	ctx := grpcMetadata.AppendToOutgoingContext(context.Background(), "authorization", tkn)
 
 	resUser, err := clientUser.GetUserById(ctx, &users_proto.GetUserByIDRequest{Id: u.ID})
-	if err != nil {
+	if err != nil || resUser == nil {
 		logger.Error.Printf("Error trayendo el usuario por su id, error: %s", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
-		return c.Status(http.StatusAccepted).JSON(res)
-	}
-
-	if resUser == nil {
-		logger.Error.Printf("Error trayendo el usuario por su id")
 		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
@@ -859,24 +787,17 @@ func (h *handlerUser) changePassword(c *fiber.Ctx) error {
 
 	clientUser := users_proto.NewAuthServicesUsersClient(connAuth)
 
-	bearer := c.Get("Authorization")
-	tkn := bearer[7:]
+	token := c.Get("Authorization")[7:]
 
-	ctx := grpcMetadata.AppendToOutgoingContext(context.Background(), "authorization", tkn)
+	ctx := grpcMetadata.AppendToOutgoingContext(context.Background(), "authorization", token)
 
 	resChangePwd, err := clientUser.ChangePassword(ctx, &users_proto.RequestChangePwd{
 		OldPassword:     m.OldPassword,
 		NewPassword:     m.NewPassword,
 		ConfirmPassword: m.ConfirmPassword,
 	})
-	if err != nil {
+	if err != nil || resChangePwd == nil {
 		logger.Error.Printf("No se pudo actualizar la contraseña, err: %s", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
-		return c.Status(http.StatusAccepted).JSON(res)
-	}
-
-	if resChangePwd == nil {
-		logger.Error.Printf("No se pudo actualizar la contraseña")
 		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
@@ -920,20 +841,13 @@ func (h *handlerUser) getWalletByUserId(c *fiber.Ctx) error {
 	}
 	defer connAuth.Close()
 
-	bearer := c.Get("Authorization")
-	tkn := bearer[7:]
+	tkn := c.Get("Authorization")[7:]
 	ctx := grpcMetadata.AppendToOutgoingContext(context.Background(), "authorization", tkn)
 
 	clientWallet := wallet_proto.NewWalletServicesWalletClient(connAuth)
 
 	wt, err := clientWallet.GetWalletByUserId(ctx, &wallet_proto.RequestGetWalletByUserId{UserId: u.ID})
-	if err != nil {
-		logger.Error.Printf("couldn't get wallets by id: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
-		return c.Status(http.StatusAccepted).JSON(res)
-	}
-
-	if wt == nil {
+	if err != nil || wt == nil {
 		logger.Error.Printf("couldn't get wallets by id: %v", err)
 		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
@@ -945,23 +859,14 @@ func (h *handlerUser) getWalletByUserId(c *fiber.Ctx) error {
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
-	var wallets []*models.Wallet
-
-	for _, wallet := range wt.Data {
-		wallets = append(wallets, &models.Wallet{
-			ID:               wallet.Id,
-			Mnemonic:         wallet.Mnemonic,
-			RsaPublic:        wallet.RsaPublic,
-			RsaPrivate:       wallet.RsaPrivate,
-			RsaPublicDevice:  wallet.RsaPublicDevice,
-			RsaPrivateDevice: wallet.RsaPrivateDevice,
-			IpDevice:         wallet.IpDevice,
-			StatusId:         int(wallet.StatusId),
-			IdentityNumber:   wallet.IdentityNumber,
-		})
+	res.Data = models.Wallet{
+		ID:             wt.Data.Id,
+		Mnemonic:       wt.Data.Mnemonic,
+		RsaPublic:      wt.Data.Public,
+		IpDevice:       wt.Data.IpDevice,
+		StatusId:       int(wt.Data.StatusId),
+		IdentityNumber: wt.Data.IdentityNumber,
 	}
-
-	res.Data = wallets
 	res.Code, res.Type, res.Msg = msg.GetByCode(29, h.DB, h.TxID)
 	res.Error = false
 	return c.Status(http.StatusOK).JSON(res)

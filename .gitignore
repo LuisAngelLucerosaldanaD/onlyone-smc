@@ -7,6 +7,7 @@
 *.dylib
 *.zip
 onlyone-smc
+onlyone_smc
 
 
 # Test binary, build with `go test -c`
@@ -27,7 +28,7 @@ config.json
 # Directorios usados por los IDE de jetbrains
 .idea/
 .vscode/
-
+keys/
 # Directorios de log (innecesarios para seguir
 log/
 

@@ -786,6 +786,9 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "expires_at": {
+                    "type": "string"
+                },
                 "files": {
                     "type": "array",
                     "items": {
@@ -923,6 +926,12 @@ const docTemplate = `{
                 },
                 "data": {
                     "type": "string"
+                },
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/credentials.File"
+                    }
                 },
                 "from": {
                     "type": "string"
@@ -1118,12 +1127,6 @@ const docTemplate = `{
                 "recovery_account_at": {
                     "type": "string"
                 },
-                "rsa_private": {
-                    "type": "string"
-                },
-                "rsa_public": {
-                    "type": "string"
-                },
                 "status_id": {
                     "type": "integer"
                 },
@@ -1156,16 +1159,7 @@ const docTemplate = `{
                 "mnemonic": {
                     "type": "string"
                 },
-                "rsa_private": {
-                    "type": "string"
-                },
-                "rsa_private_device": {
-                    "type": "string"
-                },
                 "rsa_public": {
-                    "type": "string"
-                },
-                "rsa_public_device": {
                     "type": "string"
                 },
                 "status_id": {
@@ -1272,10 +1266,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Wallet"
-                    }
+                    "$ref": "#/definitions/models.Wallet"
                 },
                 "error": {
                     "type": "boolean"

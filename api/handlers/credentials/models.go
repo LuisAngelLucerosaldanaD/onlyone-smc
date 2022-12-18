@@ -1,13 +1,29 @@
 package credentials
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"time"
+)
 
 type responseCreateCredential struct {
 	Error bool   `json:"error"`
-	Data  string `json:"data"`
+	Data  resTrx `json:"data"`
 	Code  int    `json:"code"`
 	Type  int    `json:"type"`
 	Msg   string `json:"msg"`
+}
+
+type resTrx struct {
+	Id        string  `json:"id,omitempty"`
+	From      string  `json:"from,omitempty"`
+	To        string  `json:"to,omitempty"`
+	Amount    float64 `json:"amount,omitempty"`
+	TypeId    int32   `json:"type_id,omitempty"`
+	Data      string  `json:"data,omitempty"`
+	Block     int64   `json:"block,omitempty"`
+	Files     string  `json:"files,omitempty"`
+	CreatedAt string  `json:"created_at,omitempty"`
+	UpdatedAt string  `json:"updated_at,omitempty"`
 }
 
 type requestCreateTransaction struct {
@@ -60,6 +76,7 @@ type credential struct {
 	Amount float64 `json:"amount"`
 	TypeId int     `json:"type_id"`
 	Data   string  `json:"data"`
+	Files  []File  `json:"files"`
 }
 
 type Data struct {
@@ -70,6 +87,7 @@ type Data struct {
 	Name           string       `json:"name"`
 	Description    string       `json:"description"`
 	Identifiers    []Identifier `json:"identifiers"`
+	ExpiresAt      time.Time    `json:"expires_at"`
 }
 
 type File struct {
@@ -88,3 +106,20 @@ type Attribute struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
+
+type DataTrx struct {
+	Category       string       `json:"category"`
+	IdentityNumber string       `json:"identity_number"`
+	Name           string       `json:"name"`
+	Description    string       `json:"description"`
+	Identifiers    []Identifier `json:"identifiers"`
+	Type           int32        `json:"type"`
+	Id             string       `json:"id"`         // id de la credencial
+	Status         string       `json:"status"`     // estado de la credencial
+	CreatedAt      string       `json:"created_at"` // fecha de creación de la credencial
+	ExpiresAt      string       `json:"expires_at"` // fecha de vencimiento
+}
+
+/*
+TODO get fee miners, validators and nodes
+}*/

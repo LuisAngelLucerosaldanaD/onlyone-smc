@@ -779,6 +779,9 @@
                 "description": {
                     "type": "string"
                 },
+                "expires_at": {
+                    "type": "string"
+                },
                 "files": {
                     "type": "array",
                     "items": {
@@ -916,6 +919,12 @@
                 },
                 "data": {
                     "type": "string"
+                },
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/credentials.File"
+                    }
                 },
                 "from": {
                     "type": "string"
@@ -1111,12 +1120,6 @@
                 "recovery_account_at": {
                     "type": "string"
                 },
-                "rsa_private": {
-                    "type": "string"
-                },
-                "rsa_public": {
-                    "type": "string"
-                },
                 "status_id": {
                     "type": "integer"
                 },
@@ -1149,16 +1152,7 @@
                 "mnemonic": {
                     "type": "string"
                 },
-                "rsa_private": {
-                    "type": "string"
-                },
-                "rsa_private_device": {
-                    "type": "string"
-                },
                 "rsa_public": {
-                    "type": "string"
-                },
-                "rsa_public_device": {
                     "type": "string"
                 },
                 "status_id": {
@@ -1265,10 +1259,7 @@
                     "type": "integer"
                 },
                 "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Wallet"
-                    }
+                    "$ref": "#/definitions/models.Wallet"
                 },
                 "error": {
                     "type": "boolean"

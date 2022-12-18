@@ -3,6 +3,7 @@ package credentials
 import (
 	"context"
 	"crypto/rsa"
+	"encoding/json"
 	"github.com/form3tech-oss/jwt-go"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -54,6 +55,7 @@ func init() {
 // @Accept  json
 // @Produce  json
 // @Param Authorization header string true "Authorization" default(Bearer <Add access token here>)
+// @Param Sign header string true "sign" default(<Add sign here>)
 // @Param createCredential body requestCreateTransaction true "Request create transaction"
 // @Success 200 {object} responseCreateCredential
 // @Router /api/v1/credentials/create [post]
@@ -61,6 +63,13 @@ func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 	res := responseCreateCredential{Error: true}
 	m := requestCreateTransaction{}
 	e := env.NewConfiguration()
+	sign := c.Get("sign")
+	if sign == "" {
+		logger.Error.Printf("couldn't get sign")
+		res.Code, res.Type, res.Msg = 1, 2, "No se encontro la firma del mensaje"
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
 	u, err := helpers.GetUserContextV2(c)
 	if err != nil {
 		logger.Error.Printf("couldn't get user of token: %v", err)
@@ -108,19 +117,19 @@ func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 		walletToByIN, err := clientWallet.GetWalletByIdentityNumber(ctx, &wallet_proto.RqGetByIdentityNumber{IdentityNumber: m.Data.IdentityNumber})
 		if err != nil {
 			logger.Error.Printf("couldn't get wallet by identity number: %v", err)
-			res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+			res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
 			return c.Status(http.StatusAccepted).JSON(res)
 		}
 
 		if walletToByIN == nil {
 			logger.Error.Printf("couldn't get wallet by identity number")
-			res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+			res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
 			return c.Status(http.StatusAccepted).JSON(res)
 		}
 
 		if walletToByIN.Error {
 			logger.Error.Printf(walletToByIN.Msg)
-			res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+			res.Code, res.Type, res.Msg = msg.GetByCode(int(walletToByIN.Code), h.DB, h.TxID)
 			return c.Status(http.StatusAccepted).JSON(res)
 		}
 
@@ -128,19 +137,19 @@ func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 			wallet, err := clientWallet.CreateWalletBySystem(ctx, &wallet_proto.RqCreateWalletBySystem{})
 			if err != nil {
 				logger.Error.Printf("couldn't create wallet: %v", err)
-				res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+				res.Code, res.Type, res.Msg = msg.GetByCode(3, h.DB, h.TxID)
 				return c.Status(http.StatusAccepted).JSON(res)
 			}
 
 			if wallet == nil {
 				logger.Error.Printf("couldn't create wallet")
-				res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+				res.Code, res.Type, res.Msg = msg.GetByCode(3, h.DB, h.TxID)
 				return c.Status(http.StatusAccepted).JSON(res)
 			}
 
 			if wallet.Error {
 				logger.Error.Printf(wallet.Msg)
-				res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+				res.Code, res.Type, res.Msg = msg.GetByCode(int(wallet.Code), h.DB, h.TxID)
 				return c.Status(http.StatusAccepted).JSON(res)
 			}
 
@@ -154,19 +163,19 @@ func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 			})
 			if err != nil {
 				logger.Error.Printf("couldn't create accounting to wallet: %v", err)
-				res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+				res.Code, res.Type, res.Msg = msg.GetByCode(3, h.DB, h.TxID)
 				return c.Status(http.StatusAccepted).JSON(res)
 			}
 
 			if resAccountTo == nil {
 				logger.Error.Printf("couldn't create accounting to wallet: %v", err)
-				res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+				res.Code, res.Type, res.Msg = msg.GetByCode(3, h.DB, h.TxID)
 				return c.Status(http.StatusAccepted).JSON(res)
 			}
 
 			if resAccountTo.Error {
 				logger.Error.Printf(resAccountTo.Msg)
-				res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+				res.Code, res.Type, res.Msg = msg.GetByCode(int(resAccountTo.Code), h.DB, h.TxID)
 				return c.Status(http.StatusAccepted).JSON(res)
 			}
 		} else {
@@ -183,57 +192,76 @@ func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 		})
 	}
 
-	var identifiers []*transactions_proto.Identifier
+	var identifiers []Identifier
 	for _, identifier := range m.Data.Identifiers {
-		var attributes []*transactions_proto.Attribute
+		var attributes []Attribute
 		for _, attribute := range identifier.Attributes {
-			attributes = append(attributes, &transactions_proto.Attribute{
-				Id:    int32(attribute.Id),
+			attributes = append(attributes, Attribute{
+				Id:    attribute.Id,
 				Name:  attribute.Name,
 				Value: attribute.Value,
 			})
 		}
-		identifiers = append(identifiers, &transactions_proto.Identifier{
+		identifiers = append(identifiers, Identifier{
 			Name:       identifier.Name,
 			Attributes: attributes,
 		})
 	}
+
+	dataTrx := DataTrx{
+		Category:       m.Data.Category,
+		IdentityNumber: m.Data.IdentityNumber,
+		Name:           m.Data.Name,
+		Description:    m.Data.Description,
+		Identifiers:    identifiers,
+		Type:           int32(m.Data.Type),
+		Id:             uuid.New().String(),
+		Status:         "active",
+		CreatedAt:      time.Now().String(),
+		ExpiresAt:      m.Data.ExpiresAt.String(),
+	}
+
+	trxBytes, _ := json.Marshal(dataTrx)
 
 	resCreateTrx, err := clientTrx.CreateTransaction(ctx, &transactions_proto.RequestCreateTransaction{
 		From:   m.From,
 		To:     m.To,
 		Amount: m.Amount,
 		TypeId: int32(m.TypeId),
-		Data: &transactions_proto.Data{
-			Category:       m.Data.Category,
-			IdentityNumber: m.Data.IdentityNumber,
-			Files:          files,
-			Name:           m.Data.Name,
-			Description:    m.Data.Description,
-			Identifiers:    identifiers,
-			Type:           int32(m.Data.Type),
-		},
+		Data:   string(trxBytes),
+		Files:  files,
 	})
 
 	if err != nil {
 		logger.Error.Printf("No se pudo crear el usuario, error: %s", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(3, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if resCreateTrx == nil {
 		logger.Error.Printf("No se pudo crear el usuario")
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(3, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if resCreateTrx.Error {
 		logger.Error.Printf(resCreateTrx.Msg)
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(int(resCreateTrx.Code), h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
-	res.Data = "La credencial ha sido creada correctamente"
+	res.Data = resTrx{
+		Id:        resCreateTrx.Data.Id,
+		From:      resCreateTrx.Data.From,
+		To:        resCreateTrx.Data.To,
+		Amount:    resCreateTrx.Data.Amount,
+		TypeId:    resCreateTrx.Data.TypeId,
+		Data:      resCreateTrx.Data.Data,
+		Block:     0,
+		Files:     resCreateTrx.Data.Files,
+		CreatedAt: resCreateTrx.Data.CreatedAt,
+		UpdatedAt: resCreateTrx.Data.UpdatedAt,
+	}
 	res.Code, res.Type, res.Msg = msg.GetByCode(29, h.DB, h.TxID)
 	res.Error = false
 	return c.Status(http.StatusOK).JSON(res)
@@ -278,15 +306,14 @@ func (h *handlerCredentials) getAllCredentials(c *fiber.Ctx) error {
 	connTrx, err := grpc.Dial(e.TransactionsService.Port, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		logger.Error.Printf("error conectando con el servicio trx de blockchain: %s", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 	defer connTrx.Close()
 
 	clientTrx := transactions_proto.NewTransactionsServicesClient(connTrx)
 
-	bearer := c.Get("Authorization")
-	tkn := bearer[7:]
+	tkn := c.Get("Authorization")[7:]
 
 	ctx := grpcMetadata.AppendToOutgoingContext(context.Background(), "authorization", tkn)
 
@@ -297,24 +324,31 @@ func (h *handlerCredentials) getAllCredentials(c *fiber.Ctx) error {
 	})
 	if err != nil {
 		logger.Error.Printf("couldn't get all transactions: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if resTrx == nil {
 		logger.Error.Printf("couldn't get all transactions: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if resTrx.Error {
 		logger.Error.Printf(resTrx.Msg)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(int(resTrx.Code), h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	var credentials []*credential
 	for _, trx := range resTrx.Data {
+		var files []File
+		err := json.Unmarshal([]byte(trx.Files), &files)
+		if err != nil {
+			logger.Error.Printf("couldn't parsed trx files: %v", err)
+			res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+			return c.Status(http.StatusAccepted).JSON(res)
+		}
 		credentials = append(credentials, &credential{
 			Id:     trx.Id,
 			From:   trx.From,
@@ -322,6 +356,7 @@ func (h *handlerCredentials) getAllCredentials(c *fiber.Ctx) error {
 			Amount: trx.Amount,
 			TypeId: int(trx.TypeId),
 			Data:   trx.Data,
+			Files:  files,
 		})
 	}
 
@@ -393,8 +428,7 @@ func (h *handlerCredentials) getAllTransactionFiles(c *fiber.Ctx) error {
 
 	clientTrx := transactions_proto.NewTransactionsServicesClient(connTrx)
 
-	bearer := c.Get("Authorization")
-	tkn := bearer[7:]
+	tkn := c.Get("Authorization")[7:]
 
 	ctx := grpcMetadata.AppendToOutgoingContext(context.Background(), "authorization", tkn)
 
@@ -413,7 +447,7 @@ func (h *handlerCredentials) getAllTransactionFiles(c *fiber.Ctx) error {
 
 	if resFiles.Error {
 		logger.Error.Printf(resFiles.Msg)
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(int(resFiles.Code), h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
