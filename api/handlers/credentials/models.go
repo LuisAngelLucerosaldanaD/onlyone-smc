@@ -87,7 +87,7 @@ type Data struct {
 	Name           string       `json:"name"`
 	Description    string       `json:"description"`
 	Identifiers    []Identifier `json:"identifiers"`
-	ExpiresAt      time.Time    `json:"expires_at"`
+	ExpiresAt      *time.Time   `json:"expires_at"`
 }
 
 type File struct {
@@ -117,7 +117,7 @@ type DataTrx struct {
 	Id             string       `json:"id"`         // id de la credencial
 	Status         string       `json:"status"`     // estado de la credencial
 	CreatedAt      string       `json:"created_at"` // fecha de creación de la credencial
-	ExpiresAt      string       `json:"expires_at"` // fecha de vencimiento
+	ExpiresAt      *time.Time   `json:"expires_at"` // fecha de vencimiento
 }
 
 /*

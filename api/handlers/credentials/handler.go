@@ -218,7 +218,7 @@ func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 		Id:             uuid.New().String(),
 		Status:         "active",
 		CreatedAt:      time.Now().String(),
-		ExpiresAt:      m.Data.ExpiresAt.String(),
+		ExpiresAt:      m.Data.ExpiresAt,
 	}
 
 	trxBytes, _ := json.Marshal(dataTrx)
