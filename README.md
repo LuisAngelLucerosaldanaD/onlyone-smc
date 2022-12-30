@@ -64,3 +64,8 @@ en la red de BLion. Para Mayor información sobre los `Smart Contract` en BLion 
 
 go install github.com/swaggo/swag/cmd/swag@latest
 
+
+# cross compilation
+* GOOS=linux  GOARCH=amd64 go build
+* GOOS=windows  GOARCH=amd64 go build
+

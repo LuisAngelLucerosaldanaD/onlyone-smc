@@ -14,7 +14,6 @@ import (
 	"onlyone_smc/internal/aws_ia"
 	"onlyone_smc/internal/env"
 	"onlyone_smc/internal/grpc/accounting_proto"
-	"onlyone_smc/internal/grpc/auth_proto"
 	"onlyone_smc/internal/grpc/users_proto"
 	"onlyone_smc/internal/grpc/wallet_proto"
 	"onlyone_smc/internal/helpers"
@@ -69,34 +68,7 @@ func (h *handlerUser) createUser(c *fiber.Ctx) error {
 
 	clientUser := users_proto.NewAuthServicesUsersClient(connAuth)
 
-	clientAuth := auth_proto.NewAuthServicesUsersClient(connAuth)
-
-	resLogin, err := clientAuth.Login(context.Background(), &auth_proto.LoginRequest{
-		Email:    nil,
-		Nickname: &e.App.UserLogin,
-		Password: e.App.UserPassword,
-	})
-	if err != nil {
-		logger.Error.Printf("No se pudo obtener el token de autenticacion: %s", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(3, h.DB, h.TxID)
-		return c.Status(http.StatusAccepted).JSON(res)
-	}
-
-	if resLogin == nil {
-		logger.Error.Printf("No se pudo obtener el token de autenticacion")
-		res.Code, res.Type, res.Msg = msg.GetByCode(3, h.DB, h.TxID)
-		return c.Status(http.StatusAccepted).JSON(res)
-	}
-
-	if resLogin.Error {
-		logger.Error.Printf(resLogin.Msg)
-		res.Code, res.Type, res.Msg = msg.GetByCode(3, h.DB, h.TxID)
-		return c.Status(http.StatusAccepted).JSON(res)
-	}
-
-	ctx := grpcMetadata.AppendToOutgoingContext(context.Background(), "authorization", resLogin.Data.AccessToken)
-
-	resCreateUser, err := clientUser.CreateUser(ctx, &users_proto.UserRequest{
+	resCreateUser, err := clientUser.CreateUser(context.Background(), &users_proto.UserRequest{
 		Id:              "",
 		Nickname:        m.Nickname,
 		Email:           m.Email,
@@ -859,7 +831,13 @@ func (h *handlerUser) getWalletByUserId(c *fiber.Ctx) error {
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
-	res.Data = models.Wallet{
+	if wt.Data == nil {
+		res.Code, res.Type, res.Msg = msg.GetByCode(10007, h.DB, h.TxID)
+		res.Error = false
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	res.Data = &models.Wallet{
 		ID:             wt.Data.Id,
 		Mnemonic:       wt.Data.Mnemonic,
 		RsaPublic:      wt.Data.Public,

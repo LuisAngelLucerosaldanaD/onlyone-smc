@@ -98,11 +98,11 @@ type requestUpdatePassword struct {
 }
 
 type responseGetWallets struct {
-	Error bool          `json:"error"`
-	Data  models.Wallet `json:"data"`
-	Code  int           `json:"code"`
-	Type  int           `json:"type"`
-	Msg   string        `json:"msg"`
+	Error bool           `json:"error"`
+	Data  *models.Wallet `json:"data"`
+	Code  int            `json:"code"`
+	Type  int            `json:"type"`
+	Msg   string         `json:"msg"`
 }
 
 type responsePerson struct {

@@ -56,7 +56,7 @@ func (h *handlerLogin) Login(c *fiber.Ctx) error {
 	})
 	if err != nil {
 		logger.Error.Printf("No se pudo obtener el token de autenticacion: %s", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(10, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
