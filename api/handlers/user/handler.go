@@ -503,11 +503,22 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
-	wallet := resWallet.Data
+	wallet := &WalletIdentity{}
 
-	var walletID string
-
-	if wallet == nil {
+	if resWallet.Data != nil {
+		infoWallet, code, err := srvAuth.SrvUsersCredential.GetUsersCredentialByIdentityNumber(userFields.IdentityNumber)
+		if err != nil {
+			logger.Error.Printf("No se pudo obtener la información de la wallet, error: %s", err.Error())
+			res.Code, res.Type, res.Msg = msg.GetByCode(code, h.DB, h.TxID)
+			return c.Status(http.StatusAccepted).JSON(res)
+		}
+		wallet = &WalletIdentity{
+			ID:         resWallet.Data.Id,
+			Mnemonic:   infoWallet.Mnemonic,
+			RsaPublic:  resWallet.Data.Public,
+			RsaPrivate: infoWallet.PrivateKey,
+		}
+	} else {
 		newWallet, err := clientWallet.CreateWalletBySystem(ctx, &wallet_proto.RqCreateWalletBySystem{IdentityNumber: userFields.IdentityNumber})
 		if err != nil || newWallet == nil {
 			logger.Error.Printf("couldn't create wallet: %v", err)
@@ -521,12 +532,12 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 			return c.Status(http.StatusAccepted).JSON(res)
 		}
 
-		wallet = &wallet_proto.Wallet{
-			Id:       newWallet.Data.Id,
-			Mnemonic: newWallet.Data.Mnemonic,
+		wallet = &WalletIdentity{
+			ID:         newWallet.Data.Id,
+			Mnemonic:   newWallet.Data.Mnemonic,
+			RsaPublic:  newWallet.Data.Key.Public,
+			RsaPrivate: newWallet.Data.Key.Private,
 		}
-
-		walletID = newWallet.Data.Id
 
 		resCreateAccount, err := clientAccount.CreateAccounting(ctx, &accounting_proto.RequestCreateAccounting{
 			Id:       uuid.New().String(),
@@ -546,35 +557,11 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 			return c.Status(http.StatusAccepted).JSON(res)
 		}
 
-	} else {
-		walletID = wallet.Id
-		resUpdateWallet, err := clientWallet.UpdateWallet(ctx, &wallet_proto.RqUpdateWallet{
-			Id:             wallet.Id,
-			IpDevice:       wallet.IpDevice,
-			IdentityNumber: wallet.IdentityNumber,
-			StatusId:       wallet.StatusId,
-		})
-		if err != nil || resUserWallet == nil {
-			logger.Error.Printf("couldn't update wallet: %v", err)
-			res.Code, res.Type, res.Msg = msg.GetByCode(5, h.DB, h.TxID)
-			return c.Status(http.StatusAccepted).JSON(res)
-		}
-
-		if resUpdateWallet.Error {
-			logger.Error.Printf(resUpdateWallet.Msg)
-			res.Code, res.Type, res.Msg = msg.GetByCode(int(resUpdateWallet.Code), h.DB, h.TxID)
-			return c.Status(http.StatusAccepted).JSON(res)
-		}
-
-		wallet = &wallet_proto.Wallet{
-			Id:       resUpdateWallet.Data.Id,
-			Mnemonic: resUpdateWallet.Data.Mnemonic,
-		}
 	}
 
 	resCreateUserWallet, err := clientUser.CreateUserWallet(ctx, &users_proto.RqCreateUserWallet{
 		UserId:   u.ID,
-		WalletId: walletID,
+		WalletId: wallet.ID,
 	})
 	if err != nil || resCreateUserWallet == nil {
 		logger.Error.Printf("couldn't create users wallet: %v", err)
@@ -598,11 +585,15 @@ func (h *handlerUser) validateIdentity(c *fiber.Ctx) error {
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
-	res.Data = &models.Wallet{
-		ID:       wallet.Id,
-		Mnemonic: wallet.Mnemonic,
+	code, err = srvAuth.SrvUsersCredential.DeleteUsersCredentialByIdentityNumber(userFields.IdentityNumber)
+	if err != nil {
+		logger.Error.Printf("couldn't delete user key, error: %v", err)
+		res.Code, res.Type, res.Msg = msg.GetByCode(code, h.DB, h.TxID)
+		res.Msg = err.Error()
+		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
+	res.Data = wallet
 	res.Code, res.Type, res.Msg = msg.GetByCode(29, h.DB, h.TxID)
 	res.Error = false
 	return c.Status(http.StatusOK).JSON(res)

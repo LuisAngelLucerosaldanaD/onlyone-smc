@@ -20,6 +20,7 @@ import (
 	"onlyone_smc/internal/helpers"
 	"onlyone_smc/internal/logger"
 	"onlyone_smc/internal/msg"
+	"onlyone_smc/pkg/auth"
 	"strconv"
 	"time"
 )
@@ -76,6 +77,9 @@ func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 		res.Code, res.Type, res.Msg = msg.GetByCode(1, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
+
+	srv := auth.NewServerAuth(h.DB, u, h.TxID)
+
 	err = c.BodyParser(&m)
 	if err != nil {
 		logger.Error.Printf("couldn't bind model create wallets: %v", err)
@@ -106,15 +110,16 @@ func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 	token := c.Get("Authorization")[7:]
 
 	ctx := grpcMetadata.AppendToOutgoingContext(context.Background(), "authorization", token)
+	ctx = grpcMetadata.AppendToOutgoingContext(ctx, "sign", sign)
 
-	if m.To == "" && m.Data.IdentityNumber == "" {
+	if m.To == "" && m.IdentityNumber == "" {
 		logger.Error.Printf("La wallet de destino es requerido")
 		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if m.To == "" {
-		walletToByIN, err := clientWallet.GetWalletByIdentityNumber(ctx, &wallet_proto.RqGetByIdentityNumber{IdentityNumber: m.Data.IdentityNumber})
+		walletToByIN, err := clientWallet.GetWalletByIdentityNumber(ctx, &wallet_proto.RqGetByIdentityNumber{IdentityNumber: m.IdentityNumber})
 		if err != nil {
 			logger.Error.Printf("couldn't get wallet by identity number: %v", err)
 			res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
@@ -153,6 +158,13 @@ func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 				return c.Status(http.StatusAccepted).JSON(res)
 			}
 
+			_, code, err := srv.SrvUsersCredential.CreateUsersCredential(uuid.New().String(), wallet.Data.Key.Private, m.IdentityNumber, wallet.Data.Mnemonic)
+			if err != nil {
+				logger.Error.Printf("No se pudo registrar la key de la nueva wallet, error: %s", err.Error())
+				res.Code, res.Type, res.Msg = msg.GetByCode(code, h.DB, h.TxID)
+				return c.Status(http.StatusAccepted).JSON(res)
+			}
+
 			m.To = wallet.Data.Id
 
 			resAccountTo, err := clientAccount.CreateAccounting(ctx, &accounting_proto.RequestCreateAccounting{
@@ -184,7 +196,7 @@ func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 	}
 
 	var files []*transactions_proto.File
-	for _, file := range m.Data.Files {
+	for _, file := range m.Files {
 		files = append(files, &transactions_proto.File{
 			IdFile:     int32(file.FileID),
 			Name:       file.Name,
@@ -192,48 +204,25 @@ func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 		})
 	}
 
-	var identifiers []Identifier
-	for _, identifier := range m.Data.Identifiers {
-		var attributes []Attribute
-		for _, attribute := range identifier.Attributes {
-			attributes = append(attributes, Attribute{
-				Id:    attribute.Id,
-				Name:  attribute.Name,
-				Value: attribute.Value,
-			})
-		}
-		identifiers = append(identifiers, Identifier{
-			Name:       identifier.Name,
-			Attributes: attributes,
-		})
+	dataReq := DataTrx{}
+	err = json.Unmarshal([]byte(m.Data), &dataReq)
+	if err != nil {
+		logger.Error.Printf("La data no cumple con la estructura del modelo, error: %s", err.Error())
+		res.Code, res.Type, res.Msg = msg.GetByCode(15, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
 	}
-
-	dataTrx := DataTrx{
-		Category:       m.Data.Category,
-		IdentityNumber: m.Data.IdentityNumber,
-		Name:           m.Data.Name,
-		Description:    m.Data.Description,
-		Identifiers:    identifiers,
-		Type:           int32(m.Data.Type),
-		Id:             uuid.New().String(),
-		Status:         "active",
-		CreatedAt:      time.Now().String(),
-		ExpiresAt:      m.Data.ExpiresAt,
-	}
-
-	trxBytes, _ := json.Marshal(dataTrx)
 
 	resCreateTrx, err := clientTrx.CreateTransaction(ctx, &transactions_proto.RequestCreateTransaction{
 		From:   m.From,
 		To:     m.To,
 		Amount: m.Amount,
 		TypeId: int32(m.TypeId),
-		Data:   string(trxBytes),
+		Data:   m.Data,
 		Files:  files,
 	})
 
 	if err != nil {
-		logger.Error.Printf("No se pudo crear el usuario, error: %s", err)
+		logger.Error.Printf("No se pudo crear la transaccion, error: %s", err)
 		res.Code, res.Type, res.Msg = msg.GetByCode(3, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}

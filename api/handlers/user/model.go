@@ -48,11 +48,18 @@ type responseActivateUser struct {
 }
 
 type responseValidateUser struct {
-	Error bool           `json:"error"`
-	Data  *models.Wallet `json:"data"`
-	Code  int            `json:"code"`
-	Type  int            `json:"type"`
-	Msg   string         `json:"msg"`
+	Error bool            `json:"error"`
+	Data  *WalletIdentity `json:"data"`
+	Code  int             `json:"code"`
+	Type  int             `json:"type"`
+	Msg   string          `json:"msg"`
+}
+
+type WalletIdentity struct {
+	ID         string `json:"id" db:"id"`
+	Mnemonic   string `json:"mnemonic" db:"mnemonic"`
+	RsaPublic  string `json:"rsa_public" db:"rsa_public"`
+	RsaPrivate string `json:"rsa_private" db:"rsa_private"`
 }
 
 type responseUserValid struct {

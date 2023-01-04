@@ -27,11 +27,13 @@ type resTrx struct {
 }
 
 type requestCreateTransaction struct {
-	From   string  `json:"from"`
-	To     string  `json:"to"`
-	Amount float64 `json:"amount"`
-	TypeId int     `json:"type_id"`
-	Data   Data    `json:"data"`
+	From           string  `json:"from"`
+	To             string  `json:"to"`
+	IdentityNumber string  `json:"identity_number"`
+	Amount         float64 `json:"amount"`
+	TypeId         int     `json:"type_id"`
+	Data           string  `json:"data"`
+	Files          []*File `json:"files"`
 }
 
 type responseAllCredentials struct {
@@ -108,16 +110,15 @@ type Attribute struct {
 }
 
 type DataTrx struct {
-	Category       string       `json:"category"`
-	IdentityNumber string       `json:"identity_number"`
-	Name           string       `json:"name"`
-	Description    string       `json:"description"`
-	Identifiers    []Identifier `json:"identifiers"`
-	Type           int32        `json:"type"`
-	Id             string       `json:"id"`         // id de la credencial
-	Status         string       `json:"status"`     // estado de la credencial
-	CreatedAt      string       `json:"created_at"` // fecha de creación de la credencial
-	ExpiresAt      *time.Time   `json:"expires_at"` // fecha de vencimiento
+	Category    string       `json:"category"`
+	Name        string       `json:"name"`
+	Description string       `json:"description"`
+	Identifiers []Identifier `json:"identifiers"`
+	Type        int32        `json:"type"`
+	Id          string       `json:"id"`         // id de la credencial
+	Status      string       `json:"status"`     // estado de la credencial
+	CreatedAt   string       `json:"created_at"` // fecha de creación de la credencial
+	ExpiresAt   *time.Time   `json:"expires_at"` // fecha de vencimiento
 }
 
 /*
