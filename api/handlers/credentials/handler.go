@@ -20,7 +20,9 @@ import (
 	"onlyone_smc/internal/helpers"
 	"onlyone_smc/internal/logger"
 	"onlyone_smc/internal/msg"
+	"onlyone_smc/internal/pwd"
 	"onlyone_smc/pkg/auth"
+	"onlyone_smc/pkg/cfg"
 	"strconv"
 	"time"
 )
@@ -450,6 +452,119 @@ func (h *handlerCredentials) getAllTransactionFiles(c *fiber.Ctx) error {
 	}
 
 	res.Data = files
+	res.Code, res.Type, res.Msg = msg.GetByCode(29, h.DB, h.TxID)
+	res.Error = false
+	return c.Status(http.StatusOK).JSON(res)
+}
+
+// sharedCredentials godoc
+// @Summary Registra los datos de la credencial a compartir
+// @Description Método para registrar los datos de la credencial que se va a compartir
+// @Tags Credentials
+// @Accept  json
+// @Produce  json
+// @Param Authorization header string true "Authorization" default(Bearer <Add access token here>)
+// @Param sharedCredentials body reqSharedCredentials true "Datos para crear la credencial a compartir"
+// @Success 200 {object} ResAnny
+// @Router /api/v1/credentials/shared [post]
+func (h *handlerCredentials) sharedCredentials(c *fiber.Ctx) error {
+	res := ResAnny{Error: true}
+	req := reqSharedCredentials{}
+	err := c.BodyParser(&req)
+	if err != nil {
+		logger.Error.Printf("couldn't bind model shared credentials: %v", err)
+		res.Code, res.Type, res.Msg = msg.GetByCode(1, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	u, err := helpers.GetUserContextV2(c)
+	if err != nil {
+		logger.Error.Printf("couldn't get user of token: %v", err)
+		res.Code, res.Type, res.Msg = msg.GetByCode(1, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	srvCfg := cfg.NewServerCfg(h.DB, u, h.TxID)
+
+	resCredential, code, err := srvCfg.SrvSharedCredential.CreateSharedCredential(req.Data, u.ID, req.Password, req.ExpiredAt, req.MaxNumberQueries)
+	if err != nil {
+		logger.Error.Printf("No se pudo crear la credencial al compartir: %s", err.Error())
+		res.Code, res.Type, res.Msg = msg.GetByCode(code, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	diff := req.ExpiredAt.Sub(time.Now())
+	tk := jwt.New(jwt.SigningMethodRS256)
+	claims := tk.Claims.(jwt.MapClaims)
+	claims["id"] = resCredential.ID
+	claims["exp"] = time.Now().Add(time.Hour * 24 * time.Duration(diff.Hours())).Unix()
+
+	token, err := tk.SignedString(signKey)
+	if err != nil {
+		res.Code, res.Type, res.Msg = 22, 1, "No se pudo generar el token"
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	res.Data = token
+	res.Code, res.Type, res.Msg = msg.GetByCode(29, h.DB, h.TxID)
+	res.Error = false
+	return c.Status(http.StatusOK).JSON(res)
+}
+
+// getSharedCredentials godoc
+// @Summary Obtiene los datos de la credencial compartida
+// @Description Método para obtener los datos de la credencial compartida
+// @Tags Credentials
+// @Accept  json
+// @Produce  json
+// @Param Authorization header string true "Authorization" default(Bearer <Add access token here>)
+// @Param sharedCredentials body reqGetSharedCredential true "Datos para obtener la credencial compartida"
+// @Success 200 {object} ResAnny
+// @Router /api/v1/credentials/get-shared [post]
+func (h *handlerCredentials) getSharedCredentials(c *fiber.Ctx) error {
+	res := ResAnny{Error: true}
+	req := reqGetSharedCredential{}
+	err := c.BodyParser(&req)
+	if err != nil {
+		logger.Error.Printf("couldn't bind model shared credentials: %v", err)
+		res.Code, res.Type, res.Msg = msg.GetByCode(1, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	srvCfg := cfg.NewServerCfg(h.DB, nil, h.TxID)
+
+	resCredential, code, err := srvCfg.SrvSharedCredential.GetSharedCredentialByID(req.Id)
+	if err != nil {
+		logger.Error.Printf("No se pudo obtener la credencial a compartir: %s", err.Error())
+		res.Code, res.Type, res.Msg = msg.GetByCode(code, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	isValid := pwd.Compare(resCredential.UserId, resCredential.Password, req.Password)
+	if !isValid {
+		res.Code, res.Type, res.Msg = 22, 1, "La contraseña es incorrecta"
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	if resCredential.MaxNumberQueries == 0 {
+		res.Code, res.Type, res.Msg = 22, 1, "Se ha superado el número máximo de consultas configuradas para esta credencial"
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	dateExpired := resCredential.ExpiredAt.Sub(time.Now())
+	if dateExpired.Minutes() <= 0 {
+		res.Code, res.Type, res.Msg = 22, 1, "La credencial ha caducado"
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	_, code, err = srvCfg.SrvSharedCredential.UpdateSharedCredential(resCredential.ID, resCredential.Data, resCredential.UserId, resCredential.Password, resCredential.ExpiredAt, resCredential.MaxNumberQueries-1)
+	if err != nil {
+		logger.Error.Printf("No se pudo actualizar la credencial a compartir: %s", err.Error())
+		res.Code, res.Type, res.Msg = msg.GetByCode(code, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	res.Data = resCredential.Data
 	res.Code, res.Type, res.Msg = msg.GetByCode(29, h.DB, h.TxID)
 	res.Error = false
 	return c.Status(http.StatusOK).JSON(res)

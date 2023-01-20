@@ -121,6 +121,26 @@ type DataTrx struct {
 	ExpiresAt   *time.Time   `json:"expires_at"` // fecha de vencimiento
 }
 
+type reqSharedCredentials struct {
+	Data             string    `json:"data"`
+	Password         string    `json:"password"`
+	ExpiredAt        time.Time `json:"expired_at"`
+	MaxNumberQueries int       `json:"max_number_queries"`
+}
+
+type reqGetSharedCredential struct {
+	Id       int64  `json:"id"`
+	Password string `json:"password"`
+}
+
+type ResAnny struct {
+	Error bool        `json:"error"`
+	Data  interface{} `json:"data"`
+	Code  int         `json:"code"`
+	Type  int         `json:"type"`
+	Msg   string      `json:"msg"`
+}
+
 /*
 TODO get fee miners, validators and nodes
 }*/

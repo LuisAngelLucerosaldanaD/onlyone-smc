@@ -166,6 +166,14 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "default": "\u003cAdd sign here\u003e",
+                        "description": "sign",
+                        "name": "Sign",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "description": "Request create transaction",
                         "name": "createCredential",
                         "in": "body",
@@ -225,6 +233,48 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/credentials/get-shared": {
+            "post": {
+                "description": "Método para obtener los datos de la credencial compartida",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Credentials"
+                ],
+                "summary": "Obtiene los datos de la credencial compartida",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Datos para obtener la credencial compartida",
+                        "name": "sharedCredentials",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/credentials.reqGetSharedCredential"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/credentials.ResAnny"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/credentials/jwt": {
             "post": {
                 "description": "Get JWTTransaction By ID",
@@ -262,6 +312,48 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/credentials.JwtTransactionResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/credentials/shared": {
+            "post": {
+                "description": "Método para registrar los datos de la credencial que se va a compartir",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Credentials"
+                ],
+                "summary": "Registra los datos de la credencial a compartir",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Datos para crear la credencial a compartir",
+                        "name": "sharedCredentials",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/credentials.reqSharedCredentials"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/credentials.ResAnny"
                         }
                     }
                 }
@@ -763,55 +855,6 @@ const docTemplate = `{
                 }
             }
         },
-        "credentials.Attribute": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "credentials.Data": {
-            "type": "object",
-            "properties": {
-                "category": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "expires_at": {
-                    "type": "string"
-                },
-                "files": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/credentials.File"
-                    }
-                },
-                "identifiers": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/credentials.Identifier"
-                    }
-                },
-                "identity_number": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "integer"
-                }
-            }
-        },
         "credentials.File": {
             "type": "object",
             "properties": {
@@ -820,20 +863,6 @@ const docTemplate = `{
                 },
                 "id_file": {
                     "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "credentials.Identifier": {
-            "type": "object",
-            "properties": {
-                "attributes": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/credentials.Attribute"
-                    }
                 },
                 "name": {
                     "type": "string"
@@ -884,6 +913,24 @@ const docTemplate = `{
                 "data": {
                     "type": "string"
                 },
+                "error": {
+                    "type": "boolean"
+                },
+                "msg": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "credentials.ResAnny": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {},
                 "error": {
                     "type": "boolean"
                 },
@@ -947,6 +994,34 @@ const docTemplate = `{
                 }
             }
         },
+        "credentials.reqGetSharedCredential": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "credentials.reqSharedCredentials": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "string"
+                },
+                "expired_at": {
+                    "type": "string"
+                },
+                "max_number_queries": {
+                    "type": "integer"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
         "credentials.requestCreateTransaction": {
             "type": "object",
             "properties": {
@@ -954,9 +1029,18 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "data": {
-                    "$ref": "#/definitions/credentials.Data"
+                    "type": "string"
+                },
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/credentials.File"
+                    }
                 },
                 "from": {
+                    "type": "string"
+                },
+                "identity_number": {
                     "type": "string"
                 },
                 "to": {
@@ -964,6 +1048,41 @@ const docTemplate = `{
                 },
                 "type_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "credentials.resTrx": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "block": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "data": {
+                    "type": "string"
+                },
+                "files": {
+                    "type": "string"
+                },
+                "from": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": "string"
+                },
+                "type_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         },
@@ -997,7 +1116,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "data": {
-                    "type": "string"
+                    "$ref": "#/definitions/credentials.resTrx"
                 },
                 "error": {
                     "type": "boolean"
@@ -1166,6 +1285,23 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "users.WalletIdentity": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "mnemonic": {
+                    "type": "string"
+                },
+                "rsa_private": {
+                    "type": "string"
+                },
+                "rsa_public": {
                     "type": "string"
                 }
             }
@@ -1346,7 +1482,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "data": {
-                    "$ref": "#/definitions/models.Wallet"
+                    "$ref": "#/definitions/users.WalletIdentity"
                 },
                 "error": {
                     "type": "boolean"

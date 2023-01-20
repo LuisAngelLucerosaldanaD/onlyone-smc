@@ -86,53 +86,12 @@ definitions:
       type:
         type: integer
     type: object
-  credentials.Attribute:
-    properties:
-      id:
-        type: integer
-      name:
-        type: string
-      value:
-        type: string
-    type: object
-  credentials.Data:
-    properties:
-      category:
-        type: string
-      description:
-        type: string
-      expires_at:
-        type: string
-      files:
-        items:
-          $ref: '#/definitions/credentials.File'
-        type: array
-      identifiers:
-        items:
-          $ref: '#/definitions/credentials.Identifier'
-        type: array
-      identity_number:
-        type: string
-      name:
-        type: string
-      type:
-        type: integer
-    type: object
   credentials.File:
     properties:
       file_encode:
         type: string
       id_file:
         type: integer
-      name:
-        type: string
-    type: object
-  credentials.Identifier:
-    properties:
-      attributes:
-        items:
-          $ref: '#/definitions/credentials.Attribute'
-        type: array
       name:
         type: string
     type: object
@@ -165,6 +124,18 @@ definitions:
         type: integer
       data:
         type: string
+      error:
+        type: boolean
+      msg:
+        type: string
+      type:
+        type: integer
+    type: object
+  credentials.ResAnny:
+    properties:
+      code:
+        type: integer
+      data: {}
       error:
         type: boolean
       msg:
@@ -206,18 +177,65 @@ definitions:
       type_id:
         type: integer
     type: object
+  credentials.reqGetSharedCredential:
+    properties:
+      id:
+        type: integer
+      password:
+        type: string
+    type: object
+  credentials.reqSharedCredentials:
+    properties:
+      data:
+        type: string
+      expired_at:
+        type: string
+      max_number_queries:
+        type: integer
+      password:
+        type: string
+    type: object
   credentials.requestCreateTransaction:
     properties:
       amount:
         type: number
       data:
-        $ref: '#/definitions/credentials.Data'
+        type: string
+      files:
+        items:
+          $ref: '#/definitions/credentials.File'
+        type: array
       from:
+        type: string
+      identity_number:
         type: string
       to:
         type: string
       type_id:
         type: integer
+    type: object
+  credentials.resTrx:
+    properties:
+      amount:
+        type: number
+      block:
+        type: integer
+      created_at:
+        type: string
+      data:
+        type: string
+      files:
+        type: string
+      from:
+        type: string
+      id:
+        type: string
+      to:
+        type: string
+      type_id:
+        type: integer
+      updated_at:
+        type: string
     type: object
   credentials.responseAllCredentials:
     properties:
@@ -239,7 +257,7 @@ definitions:
       code:
         type: integer
       data:
-        type: string
+        $ref: '#/definitions/credentials.resTrx'
       error:
         type: boolean
       msg:
@@ -350,6 +368,17 @@ definitions:
       status_id:
         type: integer
       updated_at:
+        type: string
+    type: object
+  users.WalletIdentity:
+    properties:
+      id:
+        type: string
+      mnemonic:
+        type: string
+      rsa_private:
+        type: string
+      rsa_public:
         type: string
     type: object
   users.requestCreateUser:
@@ -467,7 +496,7 @@ definitions:
       code:
         type: integer
       data:
-        $ref: '#/definitions/models.Wallet'
+        $ref: '#/definitions/users.WalletIdentity'
       error:
         type: boolean
       msg:
@@ -580,6 +609,12 @@ paths:
         name: Authorization
         required: true
         type: string
+      - default: <Add sign here>
+        description: sign
+        in: header
+        name: Sign
+        required: true
+        type: string
       - description: Request create transaction
         in: body
         name: createCredential
@@ -623,6 +658,34 @@ paths:
       summary: Get transaction files
       tags:
       - Credentials
+  /api/v1/credentials/get-shared:
+    post:
+      consumes:
+      - application/json
+      description: Método para obtener los datos de la credencial compartida
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Datos para obtener la credencial compartida
+        in: body
+        name: sharedCredentials
+        required: true
+        schema:
+          $ref: '#/definitions/credentials.reqGetSharedCredential'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/credentials.ResAnny'
+      summary: Obtiene los datos de la credencial compartida
+      tags:
+      - Credentials
   /api/v1/credentials/jwt:
     post:
       consumes:
@@ -649,6 +712,34 @@ paths:
           schema:
             $ref: '#/definitions/credentials.JwtTransactionResponse'
       summary: Get JWTTransaction By ID
+      tags:
+      - Credentials
+  /api/v1/credentials/shared:
+    post:
+      consumes:
+      - application/json
+      description: Método para registrar los datos de la credencial que se va a compartir
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Datos para crear la credencial a compartir
+        in: body
+        name: sharedCredentials
+        required: true
+        schema:
+          $ref: '#/definitions/credentials.reqSharedCredentials'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/credentials.ResAnny'
+      summary: Registra los datos de la credencial a compartir
       tags:
       - Credentials
   /api/v1/login:
