@@ -16,5 +16,5 @@ func RouterCredentials(app *fiber.App, db *sqlx.DB, txID string) {
 	user.Get("/all/:block_id/:limit/:offset", middleware.JWTProtected(), h.getAllCredentials)
 	user.Get("/files/:trx", middleware.JWTProtected(), h.getAllTransactionFiles)
 	user.Post("/shared", middleware.JWTProtected(), h.sharedCredentials)
-	user.Post("/get-shared", middleware.JWTProtected(), h.getSharedCredentials)
+	user.Get("/shared/:id/:password", h.getSharedCredentials)
 }

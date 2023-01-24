@@ -14,7 +14,7 @@ import (
 // @contact.email info@bjungle.net
 // @license.name Software Owner
 // @license.url https://www.bjungle.net/terms/licenses
-// @host http://127.0.0.1:50050
+// @host http://172.174.77.149:2054
 // @tag.name Credentials
 // @tag.description Credentials of OnlyOne Clients
 // @tag.name User

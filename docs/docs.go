@@ -233,48 +233,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/credentials/get-shared": {
-            "post": {
-                "description": "Método para obtener los datos de la credencial compartida",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Credentials"
-                ],
-                "summary": "Obtiene los datos de la credencial compartida",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003cAdd access token here\u003e",
-                        "description": "Authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "Datos para obtener la credencial compartida",
-                        "name": "sharedCredentials",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/credentials.reqGetSharedCredential"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/credentials.ResAnny"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/credentials/jwt": {
             "post": {
                 "description": "Get JWTTransaction By ID",
@@ -347,6 +305,55 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/credentials.reqSharedCredentials"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/credentials.ResAnny"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/credentials/shared/{id}/{password}": {
+            "get": {
+                "description": "Método para obtener los datos de la credencial compartida",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Credentials"
+                ],
+                "summary": "Obtiene los datos de la credencial compartida",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "*****",
+                        "description": "Contraseña de la credencial",
+                        "name": "password",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Id de la credencial",
+                        "name": "Id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -855,6 +862,15 @@ const docTemplate = `{
                 }
             }
         },
+        "credentials.AttributeShared": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "value": {}
+            }
+        },
         "credentials.File": {
             "type": "object",
             "properties": {
@@ -994,22 +1010,14 @@ const docTemplate = `{
                 }
             }
         },
-        "credentials.reqGetSharedCredential": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
         "credentials.reqSharedCredentials": {
             "type": "object",
             "properties": {
                 "data": {
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/credentials.AttributeShared"
+                    }
                 },
                 "expired_at": {
                     "type": "string"
@@ -1519,7 +1527,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "http://127.0.0.1:50050",
+	Host:             "http://172.174.77.149:2054",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "OnlyOne Smart Contract",

@@ -86,6 +86,12 @@ definitions:
       type:
         type: integer
     type: object
+  credentials.AttributeShared:
+    properties:
+      name:
+        type: string
+      value: {}
+    type: object
   credentials.File:
     properties:
       file_encode:
@@ -177,17 +183,12 @@ definitions:
       type_id:
         type: integer
     type: object
-  credentials.reqGetSharedCredential:
-    properties:
-      id:
-        type: integer
-      password:
-        type: string
-    type: object
   credentials.reqSharedCredentials:
     properties:
       data:
-        type: string
+        items:
+          $ref: '#/definitions/credentials.AttributeShared'
+        type: array
       expired_at:
         type: string
       max_number_queries:
@@ -504,7 +505,7 @@ definitions:
       type:
         type: integer
     type: object
-host: http://127.0.0.1:50050
+host: http://172.174.77.149:2054
 info:
   contact:
     email: info@bjungle.net
@@ -658,34 +659,6 @@ paths:
       summary: Get transaction files
       tags:
       - Credentials
-  /api/v1/credentials/get-shared:
-    post:
-      consumes:
-      - application/json
-      description: Método para obtener los datos de la credencial compartida
-      parameters:
-      - default: Bearer <Add access token here>
-        description: Authorization
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Datos para obtener la credencial compartida
-        in: body
-        name: sharedCredentials
-        required: true
-        schema:
-          $ref: '#/definitions/credentials.reqGetSharedCredential'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/credentials.ResAnny'
-      summary: Obtiene los datos de la credencial compartida
-      tags:
-      - Credentials
   /api/v1/credentials/jwt:
     post:
       consumes:
@@ -740,6 +713,40 @@ paths:
           schema:
             $ref: '#/definitions/credentials.ResAnny'
       summary: Registra los datos de la credencial a compartir
+      tags:
+      - Credentials
+  /api/v1/credentials/shared/{id}/{password}:
+    get:
+      consumes:
+      - application/json
+      description: Método para obtener los datos de la credencial compartida
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - default: '*****'
+        description: Contraseña de la credencial
+        in: path
+        name: password
+        required: true
+        type: string
+      - default: 0
+        description: Id de la credencial
+        in: path
+        name: Id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/credentials.ResAnny'
+      summary: Obtiene los datos de la credencial compartida
       tags:
       - Credentials
   /api/v1/login:

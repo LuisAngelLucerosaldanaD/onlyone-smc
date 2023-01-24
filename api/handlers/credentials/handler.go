@@ -140,7 +140,7 @@ func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 			return c.Status(http.StatusAccepted).JSON(res)
 		}
 
-		if walletToByIN == nil {
+		if walletToByIN.Data == nil {
 			wallet, err := clientWallet.CreateWalletBySystem(ctx, &wallet_proto.RqCreateWalletBySystem{})
 			if err != nil {
 				logger.Error.Printf("couldn't create wallet: %v", err)
@@ -470,6 +470,7 @@ func (h *handlerCredentials) getAllTransactionFiles(c *fiber.Ctx) error {
 func (h *handlerCredentials) sharedCredentials(c *fiber.Ctx) error {
 	res := ResAnny{Error: true}
 	req := reqSharedCredentials{}
+	e := env.NewConfiguration()
 	err := c.BodyParser(&req)
 	if err != nil {
 		logger.Error.Printf("couldn't bind model shared credentials: %v", err)
@@ -486,7 +487,82 @@ func (h *handlerCredentials) sharedCredentials(c *fiber.Ctx) error {
 
 	srvCfg := cfg.NewServerCfg(h.DB, u, h.TxID)
 
-	resCredential, code, err := srvCfg.SrvSharedCredential.CreateSharedCredential(req.Data, u.ID, req.Password, req.ExpiredAt, req.MaxNumberQueries)
+	var attributes []AttributeShared
+	for _, attribute := range req.Data {
+		switch attribute.Name {
+		case "Número de Documento":
+			attributes = append(attributes, AttributeShared{
+				Name:  "numero_identificacion",
+				Value: attribute.Value,
+			})
+			break
+		case "Primer Nombre":
+			attributes = append(attributes, AttributeShared{
+				Name:  "primer_nombre",
+				Value: attribute.Value,
+			})
+			break
+		case "Segundo Nombre":
+			attributes = append(attributes, AttributeShared{
+				Name:  "segundo_nombre",
+				Value: attribute.Value,
+			})
+			break
+		case "Primer Apellido":
+			attributes = append(attributes, AttributeShared{
+				Name:  "primer_apellido",
+				Value: attribute.Value,
+			})
+			break
+		case "Segundo Apellido":
+			attributes = append(attributes, AttributeShared{
+				Name:  "segundo_apellido",
+				Value: attribute.Value,
+			})
+			break
+		case "Tipo de Documento":
+			attributes = append(attributes, AttributeShared{
+				Name:  "tipo_documento",
+				Value: attribute.Value,
+			})
+			break
+		case "Edad":
+			attributes = append(attributes, AttributeShared{
+				Name:  "edad",
+				Value: attribute.Value,
+			})
+			break
+		case "Sexo":
+			attributes = append(attributes, AttributeShared{
+				Name:  "genero",
+				Value: attribute.Value,
+			})
+			break
+		case "Fecha de Nacimiento":
+			attributes = append(attributes, AttributeShared{
+				Name:  "fecha_nacimiento",
+				Value: attribute.Value,
+			})
+			break
+		case "Estado Civil":
+			attributes = append(attributes, AttributeShared{
+				Name:  "estado_civil",
+				Value: attribute.Value,
+			})
+			break
+		}
+	}
+
+	credentialData := Credential{
+		Attributes: attributes,
+		Entity: Entity{
+			Id:   "8bde6377-4d29-4871-8e27-b0df56cd66e9",
+			Name: "informacion_basica",
+		},
+	}
+
+	dataBytes, _ := json.Marshal(&credentialData)
+	resCredential, code, err := srvCfg.SrvSharedCredential.CreateSharedCredential(string(dataBytes), u.ID, req.Password, req.ExpiredAt, req.MaxNumberQueries)
 	if err != nil {
 		logger.Error.Printf("No se pudo crear la credencial al compartir: %s", err.Error())
 		res.Code, res.Type, res.Msg = msg.GetByCode(code, h.DB, h.TxID)
@@ -496,8 +572,9 @@ func (h *handlerCredentials) sharedCredentials(c *fiber.Ctx) error {
 	diff := req.ExpiredAt.Sub(time.Now())
 	tk := jwt.New(jwt.SigningMethodRS256)
 	claims := tk.Claims.(jwt.MapClaims)
-	claims["id"] = resCredential.ID
-	claims["exp"] = time.Now().Add(time.Hour * 24 * time.Duration(diff.Hours())).Unix()
+	claims["url"] = e.App.UrlPortal + "/" + strconv.FormatInt(resCredential.ID, 10)
+	claims["max_number_queries"] = req.MaxNumberQueries
+	claims["exp"] = time.Now().Add(time.Hour * time.Duration(diff.Hours())).Unix()
 
 	token, err := tk.SignedString(signKey)
 	if err != nil {
@@ -515,16 +592,18 @@ func (h *handlerCredentials) sharedCredentials(c *fiber.Ctx) error {
 // @Summary Obtiene los datos de la credencial compartida
 // @Description Método para obtener los datos de la credencial compartida
 // @Tags Credentials
-// @Accept  json
-// @Produce  json
+// @Accept json
+// @Produce json
 // @Param Authorization header string true "Authorization" default(Bearer <Add access token here>)
-// @Param sharedCredentials body reqGetSharedCredential true "Datos para obtener la credencial compartida"
+// @Param password path string true "Contraseña de la credencial" default(*****)
+// @Param Id path int true "Id de la credencial" default(0)
 // @Success 200 {object} ResAnny
-// @Router /api/v1/credentials/get-shared [post]
+// @Router /api/v1/credentials/shared/{id}/{password} [get]
 func (h *handlerCredentials) getSharedCredentials(c *fiber.Ctx) error {
 	res := ResAnny{Error: true}
-	req := reqGetSharedCredential{}
-	err := c.BodyParser(&req)
+	password := c.Params("password")
+	strId := c.Params("id")
+	id, err := strconv.ParseInt(strId, 10, 64)
 	if err != nil {
 		logger.Error.Printf("couldn't bind model shared credentials: %v", err)
 		res.Code, res.Type, res.Msg = msg.GetByCode(1, h.DB, h.TxID)
@@ -533,14 +612,14 @@ func (h *handlerCredentials) getSharedCredentials(c *fiber.Ctx) error {
 
 	srvCfg := cfg.NewServerCfg(h.DB, nil, h.TxID)
 
-	resCredential, code, err := srvCfg.SrvSharedCredential.GetSharedCredentialByID(req.Id)
+	resCredential, code, err := srvCfg.SrvSharedCredential.GetSharedCredentialByID(id)
 	if err != nil {
 		logger.Error.Printf("No se pudo obtener la credencial a compartir: %s", err.Error())
 		res.Code, res.Type, res.Msg = msg.GetByCode(code, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
-	isValid := pwd.Compare(resCredential.UserId, resCredential.Password, req.Password)
+	isValid := pwd.Compare(resCredential.UserId, resCredential.Password, password)
 	if !isValid {
 		res.Code, res.Type, res.Msg = 22, 1, "La contraseña es incorrecta"
 		return c.Status(http.StatusAccepted).JSON(res)
@@ -564,7 +643,15 @@ func (h *handlerCredentials) getSharedCredentials(c *fiber.Ctx) error {
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
-	res.Data = resCredential.Data
+	credential := Credential{}
+	err = json.Unmarshal([]byte(resCredential.Data), &credential)
+	if err != nil {
+		logger.Error.Printf("No se pudo parsear la credencial: %s", err.Error())
+		res.Code, res.Type, res.Msg = msg.GetByCode(1, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	res.Data = []Credential{credential}
 	res.Code, res.Type, res.Msg = msg.GetByCode(29, h.DB, h.TxID)
 	res.Error = false
 	return c.Status(http.StatusOK).JSON(res)

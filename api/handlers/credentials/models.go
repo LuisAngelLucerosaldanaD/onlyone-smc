@@ -122,15 +122,10 @@ type DataTrx struct {
 }
 
 type reqSharedCredentials struct {
-	Data             string    `json:"data"`
-	Password         string    `json:"password"`
-	ExpiredAt        time.Time `json:"expired_at"`
-	MaxNumberQueries int       `json:"max_number_queries"`
-}
-
-type reqGetSharedCredential struct {
-	Id       int64  `json:"id"`
-	Password string `json:"password"`
+	Data             []AttributeShared `json:"data"`
+	Password         string            `json:"password"`
+	ExpiredAt        time.Time         `json:"expired_at"`
+	MaxNumberQueries int               `json:"max_number_queries"`
 }
 
 type ResAnny struct {
@@ -139,6 +134,21 @@ type ResAnny struct {
 	Code  int         `json:"code"`
 	Type  int         `json:"type"`
 	Msg   string      `json:"msg"`
+}
+
+type Credential struct {
+	Attributes []AttributeShared `json:"attributes"`
+	Entity     Entity            `json:"entity"`
+}
+
+type Entity struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type AttributeShared struct {
+	Name  string      `json:"name"`
+	Value interface{} `json:"value"`
 }
 
 /*

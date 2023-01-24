@@ -812,13 +812,13 @@ func (h *handlerUser) getWalletByUserId(c *fiber.Ctx) error {
 	wt, err := clientWallet.GetWalletByUserId(ctx, &wallet_proto.RequestGetWalletByUserId{UserId: u.ID})
 	if err != nil || wt == nil {
 		logger.Error.Printf("couldn't get wallets by id: %v", err)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if wt.Error {
 		logger.Error.Printf(wt.Msg)
-		res.Code, res.Type, res.Msg = msg.GetByCode(70, h.DB, h.TxID)
+		res.Code, res.Type, res.Msg = msg.GetByCode(95, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
