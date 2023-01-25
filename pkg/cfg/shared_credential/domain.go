@@ -13,7 +13,7 @@ type SharedCredential struct {
 	UserId           string    `json:"user_id" db:"user_id" valid:"required"`
 	Password         string    `json:"password" db:"password" valid:"required"`
 	ExpiredAt        time.Time `json:"expired_at" db:"expired_at" valid:"required"`
-	MaxNumberQueries int       `json:"max_number_queries" db:"max_number_queries" valid:"required"`
+	MaxNumberQueries int       `json:"max_number_queries" db:"max_number_queries" valid:"-"`
 	CreatedAt        time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at" db:"updated_at"`
 }

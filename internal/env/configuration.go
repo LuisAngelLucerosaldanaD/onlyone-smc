@@ -16,7 +16,6 @@ type configuration struct {
 	App                 App                 `json:"app"`
 	DB                  DB                  `json:"db"`
 	Template            Template            `json:"template"`
-	Smtp                Smtp                `json:"smtp"`
 	SendGrid            SendGrid            `json:"send_grid"`
 	Files               Files               `json:"files"`
 	Portal              Portal              `json:"portal"`
@@ -27,26 +26,21 @@ type configuration struct {
 }
 
 type App struct {
-	ServiceName          string  `json:"service_name"`
-	Port                 int     `json:"port"`
-	AllowedDomains       string  `json:"allowed_domains"`
-	PathLog              string  `json:"path_log"`
-	LogReviewInterval    int     `json:"log_review_interval"`
-	RegisterLog          bool    `json:"register_log"`
-	RSAPrivateKey        string  `json:"rsa_private_key"`
-	RSAPublicKey         string  `json:"rsa_public_key"`
-	LoggerHttp           bool    `json:"logger_http"`
-	MaxTransactionsBlock int     `json:"max_transactions_block"`
-	TtlBlock             int     `json:"ttl_block"`
-	Difficulty           int     `json:"difficulty"`
-	Fee                  float64 `json:"fee"`
-	WalletMain           string  `json:"wallet_main"`
-	UrlPortal            string  `json:"url_portal"`
-	Language             string  `json:"language"`
-	KeyGenesis           string  `json:"key_genesis"`
-	UserLogin            string  `json:"user_login"`
-	UserPassword         string  `json:"user_password"`
-	UrlPersons           string  `json:"url_persons"`
+	ServiceName       string `json:"service_name"`
+	Port              int    `json:"port"`
+	AllowedDomains    string `json:"allowed_domains"`
+	PathLog           string `json:"path_log"`
+	LogReviewInterval int    `json:"log_review_interval"`
+	RegisterLog       bool   `json:"register_log"`
+	RSAPrivateKey     string `json:"rsa_private_key"`
+	RSAPublicKey      string `json:"rsa_public_key"`
+	LoggerHttp        bool   `json:"logger_http"`
+	UrlPortal         string `json:"url_portal"`
+	Language          string `json:"language"`
+	UrlPersons        string `json:"url_persons"`
+	TLS               bool   `json:"tls"`
+	Cert              string `json:"cert"`
+	Key               string `json:"key"`
 }
 
 type Template struct {
@@ -65,13 +59,6 @@ type DB struct {
 	Instance string `json:"instance"`
 	IsSecure bool   `json:"is_secure"`
 	SSLMode  string `json:"ssl_mode"`
-}
-
-type Smtp struct {
-	Port     int    `json:"port"`
-	Host     string `json:"host"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
 }
 
 type SendGrid struct {

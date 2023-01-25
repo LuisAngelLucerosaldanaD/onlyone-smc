@@ -550,6 +550,12 @@ func (h *handlerCredentials) sharedCredentials(c *fiber.Ctx) error {
 				Value: attribute.Value,
 			})
 			break
+		default:
+			attributes = append(attributes, AttributeShared{
+				Name:  attribute.Name,
+				Value: attribute.Value,
+			})
+			break
 		}
 	}
 
