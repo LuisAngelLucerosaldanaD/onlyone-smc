@@ -695,25 +695,36 @@ func (h *handlerUser) getUserPictureProfile(c *fiber.Ctx) error {
 
 	user := resUser.Data
 
-	if user.FullPathPhoto != "" {
-
-		profile, code, err := srvAuth.SrvUserProfile.GetUserProfileByUserID(user.Id)
-		if err != nil {
-			logger.Error.Printf("couldn't get profile picture: %v", err)
-			res.Code, res.Type, res.Msg = msg.GetByCode(code, h.DB, h.TxID)
-			return c.Status(http.StatusAccepted).JSON(res)
-		}
-
-		file, code, err := srvAuth.SrvFiles.GetFileByPath(profile.Path, profile.Name)
-		if err != nil {
-			logger.Error.Printf("couldn't get profile picture: %v", err)
-			res.Code, res.Type, res.Msg = msg.GetByCode(code, h.DB, h.TxID)
-			return c.Status(http.StatusAccepted).JSON(res)
-		}
-
-		res.Data = file.Encoding
+	profile, code, err := srvAuth.SrvUserProfile.GetUserProfileByUserID(user.Id)
+	if err != nil {
+		logger.Error.Printf("couldn't get profile picture: %v", err)
+		res.Code, res.Type, res.Msg = msg.GetByCode(code, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
+	photo := strings.Split(user.FullPathPhoto, "-/")
+	fileName := profile.Name
+	filePath := profile.Name
+
+	if user.FullPathPhoto != (profile.Path + "-/" + profile.Name) {
+		_, code, err = srvAuth.SrvUserProfile.UpdateUserProfile(profile.ID, profile.UserId, photo[0], photo[1])
+		if err != nil {
+			logger.Error.Printf("couldn't update profile picture: %v", err)
+			res.Code, res.Type, res.Msg = msg.GetByCode(code, h.DB, h.TxID)
+			return c.Status(http.StatusAccepted).JSON(res)
+		}
+		fileName = photo[1]
+		filePath = photo[0]
+	}
+
+	file, code, err := srvAuth.SrvFiles.GetFileByPath(filePath, fileName)
+	if err != nil {
+		logger.Error.Printf("couldn't get profile picture: %v", err)
+		res.Code, res.Type, res.Msg = msg.GetByCode(code, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	res.Data = file.Encoding
 	res.Code, res.Type, res.Msg = msg.GetByCode(29, h.DB, h.TxID)
 	res.Error = false
 	return c.Status(http.StatusOK).JSON(res)

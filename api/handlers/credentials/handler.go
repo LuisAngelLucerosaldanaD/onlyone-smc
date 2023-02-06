@@ -141,7 +141,9 @@ func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 		}
 
 		if walletToByIN.Data == nil {
-			wallet, err := clientWallet.CreateWalletBySystem(ctx, &wallet_proto.RqCreateWalletBySystem{})
+			wallet, err := clientWallet.CreateWalletBySystem(ctx, &wallet_proto.RqCreateWalletBySystem{
+				IdentityNumber: m.IdentityNumber,
+			})
 			if err != nil {
 				logger.Error.Printf("couldn't create wallet: %v", err)
 				res.Code, res.Type, res.Msg = msg.GetByCode(3, h.DB, h.TxID)
@@ -492,31 +494,31 @@ func (h *handlerCredentials) sharedCredentials(c *fiber.Ctx) error {
 		switch attribute.Name {
 		case "Número de Documento":
 			attributes = append(attributes, AttributeShared{
-				Name:  "numero_identificacion",
+				Name:  "numero_idenfiticacion_solicitud",
 				Value: attribute.Value,
 			})
 			break
 		case "Primer Nombre":
 			attributes = append(attributes, AttributeShared{
-				Name:  "primer_nombre",
+				Name:  "primer_nombre_solicitante",
 				Value: attribute.Value,
 			})
 			break
 		case "Segundo Nombre":
 			attributes = append(attributes, AttributeShared{
-				Name:  "segundo_nombre",
+				Name:  "segundo_nombre_solicitante",
 				Value: attribute.Value,
 			})
 			break
 		case "Primer Apellido":
 			attributes = append(attributes, AttributeShared{
-				Name:  "primer_apellido",
+				Name:  "primer_apellido_solicitante",
 				Value: attribute.Value,
 			})
 			break
 		case "Segundo Apellido":
 			attributes = append(attributes, AttributeShared{
-				Name:  "segundo_apellido",
+				Name:  "segundo_apellido_solicitante",
 				Value: attribute.Value,
 			})
 			break
@@ -550,6 +552,12 @@ func (h *handlerCredentials) sharedCredentials(c *fiber.Ctx) error {
 				Value: attribute.Value,
 			})
 			break
+		case "Correo Electrónico":
+			attributes = append(attributes, AttributeShared{
+				Name:  "correo_electronico_solicitante",
+				Value: attribute.Value,
+			})
+			break
 		default:
 			attributes = append(attributes, AttributeShared{
 				Name:  attribute.Name,
@@ -562,8 +570,8 @@ func (h *handlerCredentials) sharedCredentials(c *fiber.Ctx) error {
 	credentialData := Credential{
 		Attributes: attributes,
 		Entity: Entity{
-			Id:   "8bde6377-4d29-4871-8e27-b0df56cd66e9",
-			Name: "informacion_basica",
+			Id:   "e2948fa3-df9d-47ed-92d1-f2a447999688",
+			Name: "datos_solicitante",
 		},
 	}
 
