@@ -59,6 +59,7 @@ func init() {
 // @Produce  json
 // @Param Authorization header string true "Authorization" default(Bearer <Add access token here>)
 // @Param Sign header string true "sign" default(<Add sign here>)
+// @Param identityNumber header string true "identity number" default(<Add identity number here>)
 // @Param createCredential body requestCreateTransaction true "Request create transaction"
 // @Success 200 {object} responseCreateCredential
 // @Router /api/v1/credentials/create [post]
@@ -66,6 +67,7 @@ func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 	res := responseCreateCredential{Error: true}
 	m := requestCreateTransaction{}
 	e := env.NewConfiguration()
+	identityNumber := c.Get("identity_number")
 	sign := c.Get("sign")
 	if sign == "" {
 		logger.Error.Printf("couldn't get sign")
@@ -114,14 +116,14 @@ func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 	ctx := grpcMetadata.AppendToOutgoingContext(context.Background(), "authorization", token)
 	ctx = grpcMetadata.AppendToOutgoingContext(ctx, "sign", sign)
 
-	if m.To == "" && m.IdentityNumber == "" {
+	if m.To == "" && identityNumber == "" {
 		logger.Error.Printf("La wallet de destino es requerido")
 		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
 	if m.To == "" {
-		walletToByIN, err := clientWallet.GetWalletByIdentityNumber(ctx, &wallet_proto.RqGetByIdentityNumber{IdentityNumber: m.IdentityNumber})
+		walletToByIN, err := clientWallet.GetWalletByIdentityNumber(ctx, &wallet_proto.RqGetByIdentityNumber{IdentityNumber: identityNumber})
 		if err != nil {
 			logger.Error.Printf("couldn't get wallet by identity number: %v", err)
 			res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
@@ -142,7 +144,7 @@ func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 
 		if walletToByIN.Data == nil {
 			wallet, err := clientWallet.CreateWalletBySystem(ctx, &wallet_proto.RqCreateWalletBySystem{
-				IdentityNumber: m.IdentityNumber,
+				IdentityNumber: identityNumber,
 			})
 			if err != nil {
 				logger.Error.Printf("couldn't create wallet: %v", err)
@@ -162,7 +164,8 @@ func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 				return c.Status(http.StatusAccepted).JSON(res)
 			}
 
-			_, code, err := srv.SrvUsersCredential.CreateUsersCredential(uuid.New().String(), wallet.Data.Key.Private, m.IdentityNumber, wallet.Data.Mnemonic)
+			_, code, err := srv.SrvUsersCredential.CreateUsersCredential(uuid.New().String(),
+				wallet.Data.Key.Private, identityNumber, wallet.Data.Mnemonic)
 			if err != nil {
 				logger.Error.Printf("No se pudo registrar la key de la nueva wallet, error: %s", err.Error())
 				res.Code, res.Type, res.Msg = msg.GetByCode(code, h.DB, h.TxID)
@@ -217,14 +220,14 @@ func (h *handlerCredentials) createCredential(c *fiber.Ctx) error {
 	}
 
 	resCreateTrx, err := clientTrx.CreateTransaction(ctx, &transactions_proto.RequestCreateTransaction{
-		From:   m.From,
-		To:     m.To,
-		Amount: m.Amount,
-		TypeId: int32(m.TypeId),
-		Data:   m.Data,
-		Files:  files,
+		From:     m.From,
+		To:       m.To,
+		Amount:   m.Amount,
+		TypeId:   int32(m.TypeId),
+		Data:     m.Data,
+		CipherId: m.CipherId,
+		Files:    files,
 	})
-
 	if err != nil {
 		logger.Error.Printf("No se pudo crear la transaccion, error: %s", err)
 		res.Code, res.Type, res.Msg = msg.GetByCode(3, h.DB, h.TxID)

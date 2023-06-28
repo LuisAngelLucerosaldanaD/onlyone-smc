@@ -27,13 +27,13 @@ type resTrx struct {
 }
 
 type requestCreateTransaction struct {
-	From           string  `json:"from"`
-	To             string  `json:"to"`
-	IdentityNumber string  `json:"identity_number"`
-	Amount         float64 `json:"amount"`
-	TypeId         int     `json:"type_id"`
-	Data           string  `json:"data"`
-	Files          []*File `json:"files"`
+	From     string  `json:"from"`
+	To       string  `json:"to"`
+	Amount   float64 `json:"amount"`
+	TypeId   int     `json:"type_id"`
+	Data     string  `json:"data"`
+	CipherId string  `json:"cipher_id"`
+	Files    []*File `json:"files"`
 }
 
 type responseAllCredentials struct {
