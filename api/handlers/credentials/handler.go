@@ -53,7 +53,8 @@ func init() {
 
 // createCredential godoc
 // @Summary Create credential
-// @Description Create credential
+// @Description Método para crear la credencial, la firma del cuerpo de petición debe firmarse con los campos que se
+// están enviando, en caso de enviar un capo vació, ese campo debe ser retirado antes de firmar el cuerpo de la petición
 // @Tags Credentials
 // @Accept  json
 // @Produce  json
@@ -346,13 +347,14 @@ func (h *handlerCredentials) getAllCredentials(c *fiber.Ctx) error {
 			return c.Status(http.StatusAccepted).JSON(res)
 		}
 		credentials = append(credentials, &credential{
-			Id:     trx.Id,
-			From:   trx.From,
-			To:     trx.To,
-			Amount: trx.Amount,
-			TypeId: int(trx.TypeId),
-			Data:   trx.Data,
-			Files:  files,
+			Id:       trx.Id,
+			From:     trx.From,
+			To:       trx.To,
+			Amount:   trx.Amount,
+			CipherId: trx.CipherId,
+			TypeId:   int(trx.TypeId),
+			Data:     trx.Data,
+			Files:    files,
 		})
 	}
 
@@ -576,6 +578,8 @@ func (h *handlerCredentials) sharedCredentials(c *fiber.Ctx) error {
 			Id:   "e2948fa3-df9d-47ed-92d1-f2a447999688",
 			Name: "datos_solicitante",
 		},
+		Title:       req.Title,
+		Description: req.Description,
 	}
 
 	dataBytes, _ := json.Marshal(&credentialData)

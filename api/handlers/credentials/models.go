@@ -18,6 +18,7 @@ type resTrx struct {
 	From      string  `json:"from,omitempty"`
 	To        string  `json:"to,omitempty"`
 	Amount    float64 `json:"amount,omitempty"`
+	CipherId  string  `json:"cipher_id"`
 	TypeId    int32   `json:"type_id,omitempty"`
 	Data      string  `json:"data,omitempty"`
 	Block     int64   `json:"block,omitempty"`
@@ -72,13 +73,14 @@ type JwtTransactionRequest struct {
 }
 
 type credential struct {
-	Id     string  `json:"id"`
-	From   string  `json:"from"`
-	To     string  `json:"to"`
-	Amount float64 `json:"amount"`
-	TypeId int     `json:"type_id"`
-	Data   string  `json:"data"`
-	Files  []File  `json:"files"`
+	Id       string  `json:"id"`
+	From     string  `json:"from"`
+	To       string  `json:"to"`
+	Amount   float64 `json:"amount"`
+	TypeId   int     `json:"type_id"`
+	CipherId string  `json:"cipher_id"`
+	Data     string  `json:"data"`
+	Files    []File  `json:"files"`
 }
 
 type Data struct {
@@ -124,6 +126,8 @@ type DataTrx struct {
 type reqSharedCredentials struct {
 	Data             []AttributeShared `json:"data"`
 	Password         string            `json:"password"`
+	Title            string            `json:"title"`
+	Description      string            `json:"description"`
 	ExpiredAt        time.Time         `json:"expired_at"`
 	MaxNumberQueries int               `json:"max_number_queries"`
 }
@@ -137,8 +141,10 @@ type ResAnny struct {
 }
 
 type Credential struct {
-	Attributes []AttributeShared `json:"attributes"`
-	Entity     Entity            `json:"entity"`
+	Attributes  []AttributeShared `json:"attributes"`
+	Entity      Entity            `json:"entity"`
+	Title       string            `json:"title"`
+	Description string            `json:"description"`
 }
 
 type Entity struct {

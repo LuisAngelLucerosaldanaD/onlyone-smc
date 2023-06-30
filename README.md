@@ -66,6 +66,11 @@ go install github.com/swaggo/swag/cmd/swag@latest
 
 
 # cross compilation
-* GOOS=linux  GOARCH=amd64 go build
-* GOOS=windows  GOARCH=amd64 go build
+````bash
+GOOS=linux  GOARCH=amd64 go build
+````
+
+````bash
+GOOS=windows  GOARCH=amd64 go build
+````
 

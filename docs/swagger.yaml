@@ -168,6 +168,8 @@ definitions:
     properties:
       amount:
         type: number
+      cipher_id:
+        type: string
       data:
         type: string
       files:
@@ -189,17 +191,23 @@ definitions:
         items:
           $ref: '#/definitions/credentials.AttributeShared'
         type: array
+      description:
+        type: string
       expired_at:
         type: string
       max_number_queries:
         type: integer
       password:
         type: string
+      title:
+        type: string
     type: object
   credentials.requestCreateTransaction:
     properties:
       amount:
         type: number
+      cipher_id:
+        type: string
       data:
         type: string
       files:
@@ -207,8 +215,6 @@ definitions:
           $ref: '#/definitions/credentials.File'
         type: array
       from:
-        type: string
-      identity_number:
         type: string
       to:
         type: string
@@ -221,6 +227,8 @@ definitions:
         type: number
       block:
         type: integer
+      cipher_id:
+        type: string
       created_at:
         type: string
       data:
@@ -614,6 +622,12 @@ paths:
         description: sign
         in: header
         name: Sign
+        required: true
+        type: string
+      - default: <Add identity number here>
+        description: identity number
+        in: header
+        name: identityNumber
         required: true
         type: string
       - description: Request create transaction

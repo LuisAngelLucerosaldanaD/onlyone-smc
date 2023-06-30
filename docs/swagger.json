@@ -167,6 +167,14 @@
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "default": "\u003cAdd identity number here\u003e",
+                        "description": "identity number",
+                        "name": "identityNumber",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "description": "Request create transaction",
                         "name": "createCredential",
                         "in": "body",
@@ -980,6 +988,9 @@
                 "amount": {
                     "type": "number"
                 },
+                "cipher_id": {
+                    "type": "string"
+                },
                 "data": {
                     "type": "string"
                 },
@@ -1012,6 +1023,9 @@
                         "$ref": "#/definitions/credentials.AttributeShared"
                     }
                 },
+                "description": {
+                    "type": "string"
+                },
                 "expired_at": {
                     "type": "string"
                 },
@@ -1019,6 +1033,9 @@
                     "type": "integer"
                 },
                 "password": {
+                    "type": "string"
+                },
+                "title": {
                     "type": "string"
                 }
             }
@@ -1028,6 +1045,9 @@
             "properties": {
                 "amount": {
                     "type": "number"
+                },
+                "cipher_id": {
+                    "type": "string"
                 },
                 "data": {
                     "type": "string"
@@ -1039,9 +1059,6 @@
                     }
                 },
                 "from": {
-                    "type": "string"
-                },
-                "identity_number": {
                     "type": "string"
                 },
                 "to": {
@@ -1060,6 +1077,9 @@
                 },
                 "block": {
                     "type": "integer"
+                },
+                "cipher_id": {
+                    "type": "string"
                 },
                 "created_at": {
                     "type": "string"
