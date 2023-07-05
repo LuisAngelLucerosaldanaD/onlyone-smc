@@ -13,6 +13,7 @@ import (
 	"onlyone_smc/api/handlers/credentials"
 	"onlyone_smc/api/handlers/login"
 	users "onlyone_smc/api/handlers/user"
+	"onlyone_smc/api/handlers/viewer"
 	_ "onlyone_smc/docs"
 )
 
@@ -51,4 +52,5 @@ func loadRoutes(app *fiber.App, db *sqlx.DB, TxID string) {
 	login.RouterLogin(app, db, TxID)
 	credentials.RouterCredentials(app, db, TxID)
 	categories.RouterCategories(app, db, TxID)
+	viewer.RouterViewer(app, db, TxID)
 }
