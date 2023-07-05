@@ -3,6 +3,7 @@ package cfg
 import (
 	"onlyone_smc/internal/models"
 	"onlyone_smc/pkg/cfg/categories"
+	"onlyone_smc/pkg/cfg/credential_page"
 	"onlyone_smc/pkg/cfg/credentials_styles"
 	"onlyone_smc/pkg/cfg/dictionaries"
 	"onlyone_smc/pkg/cfg/messages"
@@ -17,6 +18,7 @@ type Server struct {
 	SrvCategories       categories.PortsServerCategories
 	SrvStyles           credentials_styles.PortsServerCredentialStyles
 	SrvSharedCredential shared_credential.PortsServerSharedCredential
+	SrvCredentialPage   credential_page.PortsServerCredentialPage
 }
 
 func NewServerCfg(db *sqlx.DB, user *models.User, txID string) *Server {
@@ -36,11 +38,15 @@ func NewServerCfg(db *sqlx.DB, user *models.User, txID string) *Server {
 	repoSharedCredential := shared_credential.FactoryStorage(db, user, txID)
 	srvSharedCredential := shared_credential.NewSharedCredentialService(repoSharedCredential, user, txID)
 
+	repoCredentialPage := credential_page.FactoryStorage(db, user, txID)
+	srvCredentialPage := credential_page.NewCredentialPageService(repoCredentialPage, user, txID)
+
 	return &Server{
 		SrvDictionaries:     srvDictionaries,
 		SrvCategories:       srvCategories,
 		SrvMessage:          srvMessage,
 		SrvStyles:           srvStyles,
 		SrvSharedCredential: srvSharedCredential,
+		SrvCredentialPage:   srvCredentialPage,
 	}
 }
