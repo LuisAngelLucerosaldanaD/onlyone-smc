@@ -44,3 +44,20 @@ func (h *handlerViewer) CreateShortLink(c *fiber.Ctx) error {
 	res.Code, res.Type, res.Msg = msg.GetByCode(29, h.Db, h.TxId)
 	return c.Status(http.StatusOK).JSON(res)
 }
+
+func (h *handlerViewer) GetShortLink(c *fiber.Ctx) error {
+	idCtx := c.Params("id")
+	srvCfg := cfg.NewServerCfg(h.Db, nil, h.TxId)
+	resPage, _, err := srvCfg.SrvCredentialPage.GetCredentialPageByID(idCtx)
+	if err != nil {
+		logger.Error.Printf("No se pudo obtener el short link, err: ", err.Error())
+		return c.Status(http.StatusAccepted).SendString("No se pudo obtener la pagina")
+	}
+
+	if resPage == nil {
+		logger.Error.Printf("No se pudo obtener el Short Link")
+		return c.Status(http.StatusNotFound).SendString("No se encontro la pagina")
+	}
+
+	return c.Redirect(resPage.Url, fiber.StatusMovedPermanently)
+}

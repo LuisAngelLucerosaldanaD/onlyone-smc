@@ -12,4 +12,5 @@ func RouterViewer(app *fiber.App, db *sqlx.DB, txId string) {
 	v1 := api.Group("/v1")
 	viewer := v1.Group("viewer")
 	viewer.Post("/", middleware.JWTProtected(), h.CreateShortLink)
+	viewer.Get("/", h.GetShortLink)
 }
