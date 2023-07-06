@@ -80,6 +80,7 @@ type Portal struct {
 	Url             string `json:"url"`
 	ActivateWallet  string `json:"activate_wallet"`
 	ActivateAccount string `json:"activate_account"`
+	ViewCredential  string `json:"view_credential"`
 }
 
 type Aws struct {

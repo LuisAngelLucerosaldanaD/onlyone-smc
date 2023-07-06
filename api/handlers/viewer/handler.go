@@ -2,12 +2,11 @@ package viewer
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"net/http"
 	"onlyone_smc/internal/logger"
-	"onlyone_smc/internal/msg"
 	"onlyone_smc/pkg/cfg"
+	"time"
 )
 
 type handlerViewer struct {
@@ -15,48 +14,31 @@ type handlerViewer struct {
 	TxId string
 }
 
-func (h *handlerViewer) CreateShortLink(c *fiber.Ctx) error {
-	res := ResponseViewer{Error: true}
-	req := RequestViewer{}
-	err := c.BodyParser(&req)
-	if err != nil {
-		logger.Error.Printf("No se pudo parsear el cuerpo de la petición, err: ", err.Error())
-		res.Code, res.Type, res.Msg = msg.GetByCode(1, h.Db, h.TxId)
-		return c.Status(http.StatusBadRequest).JSON(res)
-	}
-
-	srvCfg := cfg.NewServerCfg(h.Db, nil, h.TxId)
-	resPage, code, err := srvCfg.SrvCredentialPage.CreateCredentialPage(uuid.New().String(), req.Url, req.Ttl)
-	if err != nil {
-		logger.Error.Printf("No se pudo crear el short link, err: ", err.Error())
-		res.Code, res.Type, res.Msg = msg.GetByCode(code, h.Db, h.TxId)
-		return c.Status(http.StatusAccepted).JSON(res)
-	}
-
-	if resPage == nil {
-		logger.Error.Printf("No se pudo crear el short link")
-		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.Db, h.TxId)
-		return c.Status(http.StatusAccepted).JSON(res)
-	}
-
-	res.Data = resPage.ID
-	res.Error = false
-	res.Code, res.Type, res.Msg = msg.GetByCode(29, h.Db, h.TxId)
-	return c.Status(http.StatusOK).JSON(res)
-}
-
 func (h *handlerViewer) GetShortLink(c *fiber.Ctx) error {
 	idCtx := c.Params("id")
+	if idCtx == "" {
+		return c.Status(http.StatusNotFound).SendString("No se encontro la pagina solicitada")
+	}
 	srvCfg := cfg.NewServerCfg(h.Db, nil, h.TxId)
 	resPage, _, err := srvCfg.SrvCredentialPage.GetCredentialPageByID(idCtx)
 	if err != nil {
 		logger.Error.Printf("No se pudo obtener el short link, err: ", err.Error())
-		return c.Status(http.StatusAccepted).SendString("No se pudo obtener la pagina")
+		return c.Status(http.StatusAccepted).SendString("No se pudo obtener la pagina solicitada")
 	}
 
 	if resPage == nil {
 		logger.Error.Printf("No se pudo obtener el Short Link")
-		return c.Status(http.StatusNotFound).SendString("No se encontro la pagina")
+		return c.Status(http.StatusNotFound).SendString("No se encontro la pagina solicitada")
+	}
+
+	lifeTtl := time.Now().Sub(time.Now()).Seconds()
+	if int(lifeTtl) < (resPage.Ttl * 1000) {
+		_, err = srvCfg.SrvCredentialPage.DeleteCredentialPage(resPage.ID)
+		if err != nil {
+			logger.Error.Printf("No se pudo obtener el short link, err: ", err.Error())
+			return c.Status(http.StatusAccepted).SendString("No se pudo obtener la pagina")
+		}
+		return c.Status(http.StatusAccepted).SendString("La pagina solicita ha caducado o ya no se encuentra disponible")
 	}
 
 	return c.Redirect(resPage.Url, fiber.StatusMovedPermanently)

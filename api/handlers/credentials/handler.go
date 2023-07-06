@@ -377,6 +377,8 @@ func (h *handlerCredentials) getAllCredentials(c *fiber.Ctx) error {
 func (h *handlerCredentials) getJWTTransaction(c *fiber.Ctx) error {
 	res := JwtTransactionResponse{Error: true}
 
+	e := env.NewConfiguration()
+
 	m := JwtTransactionRequest{}
 	err := c.BodyParser(&m)
 	if err != nil {
@@ -396,7 +398,22 @@ func (h *handlerCredentials) getJWTTransaction(c *fiber.Ctx) error {
 		return c.Status(http.StatusAccepted).JSON(res)
 	}
 
-	res.Data = token
+	url := e.Portal.Url + e.Portal.ViewCredential + token
+	srvCfg := cfg.NewServerCfg(h.DB, nil, h.TxID)
+	resPage, code, err := srvCfg.SrvCredentialPage.CreateCredentialPage(uuid.New().String(), url, m.Ttl)
+	if err != nil {
+		logger.Error.Printf("No se pudo crear el short link, err: ", err.Error())
+		res.Code, res.Type, res.Msg = msg.GetByCode(code, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	if resPage == nil {
+		logger.Error.Printf("No se pudo crear el short link")
+		res.Code, res.Type, res.Msg = msg.GetByCode(22, h.DB, h.TxID)
+		return c.Status(http.StatusAccepted).JSON(res)
+	}
+
+	res.Data = resPage.ID
 	res.Code, res.Type, res.Msg = msg.GetByCode(29, h.DB, h.TxID)
 	res.Error = false
 	return c.Status(http.StatusOK).JSON(res)
